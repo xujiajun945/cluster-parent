@@ -5,43 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fdd7f74d-43cb-4a2a-9ff2-3686ec15c741" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/ClusterConsumerApplication.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/client/DemoClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/configuration/NacosConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/handler/ProviderConsumerControllerAdvice.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/listener/DemoNacosConfigListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/service/DemoNacosConfigService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/service/impl/DemoNacosConfigServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/web/DemoConsumerController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/resources/application.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/resources/logback-spring.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-core/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-core/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/model/Demo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/model/NacosConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/model/ResponseData.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/support/DemoProviderSupport.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/vo/DemoVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/ClusterProviderApplication.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/configuration/ClusterProviderDataSourceConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/dal/dao/DemoProviderMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/manager/DemoProviderManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/service/DemoProviderService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/service/impl/DemoProviderServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/web/DemoProviderController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/resources/application.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/resources/logback-spring.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,36 +47,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "MyBatisLogPluginindexNum": "2",
-    "MyBatisLogPluginparameters": "Parameters:",
-    "MyBatisLogPluginpreparing": "Preparing:",
-    "MyBatisLogPluginrunning": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "jdk.selected.JAVA_MODULE": "temurin-17",
-    "last_opened_file_path": "D:/git-workspace/cluster-parent/cluster-provider/src/main/resources",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.30689654",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "MavenSettings",
-    "spring.configuration.checksum": "9cc97eb4a16e98f802bc63e728958175",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;MyBatisLogPluginindexNum&quot;: &quot;2&quot;,
+    &quot;MyBatisLogPluginparameters&quot;: &quot;Parameters:&quot;,
+    &quot;MyBatisLogPluginpreparing&quot;: &quot;Preparing:&quot;,
+    &quot;MyBatisLogPluginrunning&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;temurin-17&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/git-workspace/cluster-parent/cluster-provider/src/main/resources&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.30689654&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;9cc97eb4a16e98f802bc63e728958175&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.example.provider.dal.dao" />
@@ -175,6 +139,7 @@
       <workItem from="1792035190335" duration="7316000" />
       <workItem from="1792117191450" duration="16678000" />
       <workItem from="1792207443048" duration="8260000" />
+      <workItem from="1792385960495" duration="306000" />
     </task>
     <servers />
   </component>
