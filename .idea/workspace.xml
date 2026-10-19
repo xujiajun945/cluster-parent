@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fdd7f74d-43cb-4a2a-9ff2-3686ec15c741" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/ClusterConsumerApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/client/DemoClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/configuration/NacosConfiguration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/handler/ProviderConsumerControllerAdvice.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/listener/DemoNacosConfigListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/service/DemoNacosConfigService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/service/impl/DemoNacosConfigServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/java/com/example/consumer/web/DemoConsumerController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/resources/application.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-consumer/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-core/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-core/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/model/Demo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/model/NacosConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/model/ResponseData.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/support/DemoProviderSupport.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-core/src/main/java/com/example/core/vo/DemoVO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/ClusterProviderApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/configuration/ClusterProviderDataSourceConfiguration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/dal/dao/DemoProviderMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/manager/DemoProviderManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/service/DemoProviderService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/service/impl/DemoProviderServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/java/com/example/provider/web/DemoProviderController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/resources/application.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cluster-provider/src/main/resources/logback-spring.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HttpClientSelectedEnvironments">
+    <file url="jar://$APPLICATION_HOME_DIR$/plugins/restClient/lib/restClient.jar!/com/intellij/ws/rest/client/requests/collection/post-requests.http" environment="test" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$PROJECT_DIR$/../../develop-kit/apache-maven-3.9.0" />
+      </MavenGeneralSettings>
+    </option>
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="workspaceImportEnabled" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="3KiKwaZjj3zT5RT8djpVrB74gTC" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "MyBatisLogPluginindexNum": "2",
+    "MyBatisLogPluginparameters": "Parameters:",
+    "MyBatisLogPluginpreparing": "Preparing:",
+    "MyBatisLogPluginrunning": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "jdk.selected.JAVA_MODULE": "temurin-17",
+    "last_opened_file_path": "D:/git-workspace/cluster-parent/cluster-provider/src/main/resources",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.30689654",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "spring.configuration.checksum": "9cc97eb4a16e98f802bc63e728958175",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.example.provider.dal.dao" />
+      <recent name="com.example.provider.manager" />
+      <recent name="com.example.provider.service" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\git-workspace\cluster-parent\cluster-provider\src\main\resources" />
+      <recent name="D:\git-workspace\cluster-parent\cluster-consumer\src\main\resources" />
+    </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="/,10                                       p; n                                                                                    12, 02222222" />
+    </option>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.ClusterConsumerApplication">
+    <configuration name="generated-requests | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" requestIdentifier="#1" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #2" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" index="2" requestIdentifier="#2" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="ClusterConsumerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="cluster-consumer" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.consumer.ClusterConsumerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ClusterProviderApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="cluster-provider" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.provider.ClusterProviderApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="HTTP Request.generated-requests | #1" />
+        <item itemvalue="HTTP Request.generated-requests | #2" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fdd7f74d-43cb-4a2a-9ff2-3686ec15c741" name="Changes" comment="" />
+      <created>1792035189172</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1792035189172</updated>
+      <workItem from="1792035190335" duration="7316000" />
+      <workItem from="1792117191450" duration="16678000" />
+      <workItem from="1792207443048" duration="8260000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

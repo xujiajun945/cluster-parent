@@ -1,0 +1,6 @@
+{
+  "timestamp": "2026-10-17T04:28:33.686Z",
+  "status": 400,
+  "error": "Bad Request",
+  "path": "/demo/consumer"
+}
