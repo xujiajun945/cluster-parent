@@ -9,4 +9,6 @@ import com.example.core.vo.DemoVO;
 public interface DemoProviderService {
 
     DemoVO getById(Integer id);
+
+    DemoVO getByIdAndName(Integer id, String name);
 }

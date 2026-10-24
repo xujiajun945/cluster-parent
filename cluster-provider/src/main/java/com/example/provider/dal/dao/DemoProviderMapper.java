@@ -14,4 +14,7 @@ public interface DemoProviderMapper {
 
     @Select("SELECT * FROM demo01 WHERE id = #{id}")
     Demo getById(@Param("id") Integer id);
+
+    @Select("SELECT * FROM demo01 WHERE id = #{id} AND name = #{name}")
+    Demo getByIdAndName(@Param("id") Integer id, @Param("name") String name);
 }

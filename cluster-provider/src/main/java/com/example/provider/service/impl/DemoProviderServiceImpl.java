@@ -6,9 +6,6 @@ import com.example.provider.service.DemoProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 /**
  * @author xujiajun
  * @since 2026/10/16
@@ -22,11 +19,12 @@ public class DemoProviderServiceImpl implements DemoProviderService {
     @Override
     public DemoVO getById(Integer id) {
         DemoVO demoVO = demoProviderManager.getDemoVOById(id);
+        return demoVO;
+    }
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        String formatDate = now.format(dateTimeFormatter);
-        demoVO.setRandomStr(formatDate);
+    @Override
+    public DemoVO getByIdAndName(Integer id, String name) {
+        DemoVO demoVO = demoProviderManager.getDemoVOByIdAndName(id, name);
         return demoVO;
     }
 }

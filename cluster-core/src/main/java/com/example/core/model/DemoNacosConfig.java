@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class NacosConfig {
+public class DemoNacosConfig {
 
     private String dataId;
 

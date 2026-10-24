@@ -1,7 +1,7 @@
 package com.example.consumer.service;
 
 import com.alibaba.nacos.api.exception.NacosException;
-import com.example.core.model.NacosConfig;
+import com.example.core.model.DemoNacosConfig;
 
 /**
  * @author xujiajun
@@ -9,7 +9,9 @@ import com.example.core.model.NacosConfig;
  */
 public interface DemoNacosConfigService {
 
-    void publishConfig(NacosConfig nacosConfig) throws NacosException;
+    void publishConfig(DemoNacosConfig demoNacosConfig) throws NacosException;
 
     String getConfig(String dataId, String group) throws NacosException;
+
+    void deleteConfig(String dataId, String group, String key) throws NacosException;
 }

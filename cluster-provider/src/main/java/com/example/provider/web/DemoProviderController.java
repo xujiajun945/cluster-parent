@@ -4,10 +4,9 @@ import com.example.core.model.ResponseData;
 import com.example.core.vo.DemoVO;
 import com.example.provider.service.DemoProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * @author xujiajun
@@ -25,4 +24,13 @@ public class DemoProviderController {
         DemoVO demoVO = demoProviderService.getById(id);
         return new ResponseData(demoVO);
     }
+
+    @GetMapping(value = "/demo")
+    public ResponseData getFromProviderByMap(@RequestParam Map<String, String> queryMap) {
+        Integer id = Integer.valueOf(queryMap.get("id"));
+        String name = queryMap.get("name");
+        DemoVO demoVO = demoProviderService.getByIdAndName(id, name);
+        return new ResponseData(demoVO);
+    }
+    
 }

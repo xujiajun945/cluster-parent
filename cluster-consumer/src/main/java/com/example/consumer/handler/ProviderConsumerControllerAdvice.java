@@ -1,6 +1,7 @@
 package com.example.consumer.handler;
 
 import com.alibaba.nacos.api.exception.NacosException;
+import com.example.core.exception.ClusterException;
 import com.example.core.model.ResponseData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,13 @@ public class ProviderConsumerControllerAdvice {
     @ExceptionHandler(exception = NacosException.class)
     public ResponseData nacosExceptionHandler(NacosException e) {
         log.error("nacos 异常：", e);
+        return new ResponseData(500, "error", e);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(exception = ClusterException.class)
+    public ResponseData clusterExceptionHandler(ClusterException e) {
+        log.error("feign调用返回值异常", e);
         return new ResponseData(500, "error", e);
     }
 }

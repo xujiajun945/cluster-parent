@@ -10,5 +10,28 @@ spring:
         server-addr: 127.0.0.1:8848
         username: nacos
         password: xujiajun945
+        refresh-enabled: true
+      discovery:
+        server-addr: 127.0.0.1:8848
+        # 服务分组
+        group: demo01
+    # 开启负载均衡
+    loadbalancer:
+      enabled: true
+      # 开启负载均衡缓存（减少对注册中心的请求频率）
+      cache:
+        enabled: true
+        # 缓存过期时间，默认35s
+        ttl: 60s
+        # 缓存区大小，默认256条
+        capacity: 1024
+    openfeign:
+      httpclient:
+        hc5:
+          enabled: true
   config:
     import[0]: nacos:demo?group=default
+
+cluster:
+  provider:
+    cluster-provider: cluster-provider

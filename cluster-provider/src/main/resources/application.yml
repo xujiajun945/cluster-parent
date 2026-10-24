@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: cluster-provider
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: xujiajun945
+      discovery:
+        server-addr: 127.0.0.1:8848
+        group: demo01
+  config:
+    import[0]: nacos:demo?group=default
 
 cluster-provider:
   datasource:
