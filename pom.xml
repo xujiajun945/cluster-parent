@@ -20,6 +20,9 @@
     <profiles>
         <profile>
             <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <suffix.name>dev</suffix.name>
                 <config-group.name>cluster-consumer-demo</config-group.name>
