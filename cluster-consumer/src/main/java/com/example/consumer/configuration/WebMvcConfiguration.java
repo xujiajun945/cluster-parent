@@ -44,17 +44,21 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 .allowedMethods("*")
                 // 允许发送cookie
                 .allowCredentials(true);
+        registry.addMapping("/demo/consumer/**")
+                .allowedOriginPatterns("http://localhost:*")
+                .allowedMethods("*")
+                .allowCredentials(true);
         WebMvcConfigurer.super.addCorsMappings(registry);
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/demo/consumer/**")
-                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
-                .order(0);
-        WebMvcConfigurer.super.addInterceptors(registry);
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new LoginInterceptor())
+//                .addPathPatterns("/demo/consumer/**")
+//                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
+//                .order(0);
+//        WebMvcConfigurer.super.addInterceptors(registry);
+//    }
 
     @Bean
     @ConditionalOnMissingBean(JsonMapper.class)

@@ -17,6 +17,30 @@
         <module>cluster-core</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <suffix.name>dev</suffix.name>
+                <config-group.name>cluster-consumer-demo</config-group.name>
+            </properties>
+        </profile>
+        <profile>
+            <id>stage</id>
+            <properties>
+                <suffix.name>stage</suffix.name>
+                <config-group.name>cluster-consumer-stage</config-group.name>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <suffix.name>release</suffix.name>
+                <config-group.name>cluster-consumer-release</config-group.name>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>

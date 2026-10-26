@@ -2,16 +2,20 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: @suffix.name@
   application:
     name: cluster-provider
   cloud:
     nacos:
       config:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.184.129:8848
         username: nacos
         password: xujiajun945
+        namespace: public
+        refresh-enabled: true
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.184.129:8848
         group: demo01
   config:
     import[0]: nacos:demo?group=default
@@ -19,6 +23,6 @@ spring:
 cluster-provider:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/demo01?useAffectedRows=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
-    username: xujiajun01
+    url: jdbc:mysql://192.168.184.129:3306/demo01?useAffectedRows=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+    username: remoteUser
     password: xujiajun945

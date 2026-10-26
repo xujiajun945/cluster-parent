@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
  * @since 2026/10/19
  */
 @Configuration
-@EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "127.0.0.1:8848"))
+@EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${spring.cloud.nacos.config.server-addr}"))
 @EnableDiscoveryClient
 public class DemoNacosConfiguration {
 

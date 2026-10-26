@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Date;
@@ -55,10 +56,10 @@ public class JwtTokenUtils {
      * @return JWTToken
      */
     public static String createToken(String content) {
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
         Date nowDate = Date.from(Instant.from(now));
 
-        ZonedDateTime expTime = now.plus(2000, TimeUnit.MILLISECONDS.toChronoUnit());
+        ZonedDateTime expTime = now.plus(EXP_TIME, TimeUnit.MILLISECONDS.toChronoUnit());
         Date expDate = Date.from(Instant.from(expTime));
         return JWT.create()
                 .withIssuedAt(nowDate)
