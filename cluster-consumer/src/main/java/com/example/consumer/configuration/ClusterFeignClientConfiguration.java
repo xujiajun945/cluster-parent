@@ -6,8 +6,12 @@ import com.example.core.model.ResponseData;
 import com.example.core.util.JsonUtils;
 import feign.*;
 import feign.codec.Decoder;
+import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cloud.openfeign.support.FeignHttpMessageConverters;
+import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 
@@ -35,6 +39,11 @@ public class ClusterFeignClientConfiguration {
     @Bean
     public ErrorDecoder errorDecoder() {
         return new UserErrorDecoder();
+    }
+
+    @Bean
+    public Encoder encoder(ObjectProvider<FeignHttpMessageConverters> objectFactory) {
+        return new SpringEncoder(objectFactory);
     }
 
     @Bean

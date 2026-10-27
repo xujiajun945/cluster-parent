@@ -1,4 +1,4 @@
-package com.example.consumer.configuration;
+package com.example.provider.configuration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.valkey.springframework.data.valkey.connection.ValkeyStandaloneConfiguration;
@@ -12,12 +12,19 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 /**
@@ -51,8 +58,8 @@ public class RedisConfiguration {
 
         StringValkeySerializer stringValkeySerializer = new StringValkeySerializer();
         SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addSerializer(LocalDateTime.class, new WebMvcConfiguration.LocalDateTimeSerializer());
-        simpleModule.addSerializer(new WebMvcConfiguration.LocalDateSerializer());
+        simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
+        simpleModule.addSerializer(new LocalDateSerializer());
         JsonMapper jsonMapper = JsonMapper.builder()
                 .defaultTimeZone(TimeZone.getDefault())
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
@@ -74,6 +81,32 @@ public class RedisConfiguration {
 //        valkeyTemplate.setHashValueSerializer();
         valkeyTemplate.afterPropertiesSet();
         return valkeyTemplate;
+    }
+
+    static class LocalDateTimeSerializer extends ValueSerializer<LocalDateTime> {
+
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+
+        @Override
+        public void serialize(LocalDateTime value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
+            String dateTimeStr = FORMATTER.format(value);
+            gen.writeString(dateTimeStr);
+        }
+    }
+
+    static class LocalDateSerializer extends StdSerializer<LocalDate> {
+
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy:MM:dd");
+
+        public LocalDateSerializer() {
+            super(LocalDate.class);
+        }
+
+        @Override
+        public void serialize(LocalDate value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
+            String dateTimeStr = FORMATTER.format(value);
+            gen.writeString(dateTimeStr);
+        }
     }
 
 }

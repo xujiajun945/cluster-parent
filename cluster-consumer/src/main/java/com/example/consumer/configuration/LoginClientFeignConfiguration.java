@@ -8,6 +8,10 @@ import feign.Response;
 import feign.Util;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
+import feign.codec.Encoder;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cloud.openfeign.support.FeignHttpMessageConverters;
+import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
@@ -19,6 +23,11 @@ import java.nio.charset.StandardCharsets;
  * @since 2026/10/21
  */
 public class LoginClientFeignConfiguration {
+
+    @Bean
+    public Encoder encoder(ObjectProvider<FeignHttpMessageConverters> objectFactory) {
+        return new SpringEncoder(objectFactory);
+    }
 
     @Bean
     public Decoder decoder() {

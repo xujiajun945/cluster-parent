@@ -1,5 +1,6 @@
 package com.example.core.util;
 
+import com.example.core.model.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +46,17 @@ public class JsonUtils {
     }
 
     public static <T> T parseObject(String json, Class<T> t) {
+        if (json == null) {
+            return null;
+        }
         T Object = PARSER.readValue(json, t);
         return Object;
+    }
+
+    public static <T> T parseObject(Object o, Class<T> t) {
+        String json = toJson(o);
+        T object = parseObject(json, t);
+        return object;
     }
 
     public static <T> List<T> parseArray(String json, Class<T> tClass) {
@@ -54,6 +64,9 @@ public class JsonUtils {
     }
 
     public static <T> List<T> parseArray(String json, Class<? extends List> listClass, Class<T> tClass) {
+        if (json == null) {
+            return null;
+        }
         JavaType javaType = PARSER.getTypeFactory().constructParametricType(listClass, tClass);
         List<T> list = PARSER.readValue(json, javaType);
         return list;
@@ -64,6 +77,9 @@ public class JsonUtils {
     }
 
     public static <k, v> Map<k, v> parseMap(String json, Class<? extends Map> mapClass, Class<k> k, Class<v> v) {
+        if (json == null) {
+            return null;
+        }
         JavaType javaType = PARSER.getTypeFactory().constructParametricType(mapClass, k, v);
         Map<k, v> map = PARSER.readValue(json, javaType);
         return map;
@@ -81,32 +97,39 @@ public class JsonUtils {
      *
      */
     public static <T> T parse(String json, Class<T> tClass, Class<?>... classes) {
+        if (json == null) {
+            return null;
+        }
         JavaType javaType = PARSER.getTypeFactory().constructParametricType(tClass, classes);
         T t = PARSER.readValue(json, javaType);
         return t;
     }
 
     public static void main(String[] args) {
-        String json = "{\"username\": \"xujiajun\", \"son\": {\"name\": \"xunianan\", \"age\": \"1\"}}";
-        String json2 = "{\"son\": {\"name\": \"xunianan\", \"age\": \"1\"}}";
-        String intJson = "[1, 2, 3]";
-        String userListJson = "[{\"name\": \"xunianan\", \"age\": \"1\"}, {\"name\": \"xunianan2\", \"age\": \"2\"}]";
-        Map<String, User> map = parseMap(json2, String.class, User.class);
-        List<Integer> integerList = parseArray(intJson, Integer.class);
-        List<User> userList = parseArray(userListJson, User.class);
-        List<User> userList2 = parseArray(userListJson, LinkedList.class, User.class);
-        User son = map.get("son");
-        System.out.println(integerList);
-        System.out.println(userList);
+//        String json = "{\"username\": \"xujiajun\", \"son\": {\"name\": \"xunianan\", \"age\": \"1\"}}";
+//        String json2 = "{\"son\": {\"name\": \"xunianan\", \"age\": \"1\"}}";
+//        String intJson = "[1, 2, 3]";
+//        String userListJson = "[{\"name\": \"xunianan\", \"age\": \"1\"}, {\"name\": \"xunianan2\", \"age\": \"2\"}]";
+//        Map<String, User> map = parseMap(json2, String.class, User.class);
+//        List<Integer> integerList = parseArray(intJson, Integer.class);
+//        List<User> userList = parseArray(userListJson, User.class);
+//        List<User> userList2 = parseArray(userListJson, LinkedList.class, User.class);
+//        User son = map.get("son");
+//        System.out.println(integerList);
+//        System.out.println(userList);
+//
+//        // 复杂嵌套json
+//        String multiJson = "[" +
+//                                "{\"param1\": \"value1\", \"param2\": \"value2\"}, " +
+//                                "{\"param3\": \"value3\", \"param4\": \"value4\"}, " +
+//                                "{\"param5\": \"value5\", \"param6\": \"value6\"}"
+//                         + "]";
+//        List<Map<String, String>> parse = parse(multiJson, ArrayList.class, HashMap.class);
 
-        // 复杂嵌套json
-        String multiJson = "[" +
-                                "{\"param1\": \"value1\", \"param2\": \"value2\"}, " +
-                                "{\"param3\": \"value3\", \"param4\": \"value4\"}, " +
-                                "{\"param5\": \"value5\", \"param6\": \"value6\"}"
-                         + "]";
-        List<Map<String, String>> parse = parse(multiJson, ArrayList.class, HashMap.class);
-        System.out.println(parse);
+        User user = parseObject(null, User.class);
+        System.out.println(user);
+        String json = toJson(null);
+        System.out.println(json);
     }
 
     @Setter

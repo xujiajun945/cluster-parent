@@ -1,4 +1,4 @@
-package com.example.consumer.util;
+package com.example.provider.util;
 
 import com.example.core.util.JsonUtils;
 import io.valkey.springframework.data.valkey.core.ValkeyTemplate;
