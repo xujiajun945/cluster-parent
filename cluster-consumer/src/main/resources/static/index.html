@@ -35,7 +35,7 @@
     <script type="text/javascript">
 
         window.onload = function () {
-            fetch('http://localhost:8081/view/login/check', {
+            fetch('/view/login/check', {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -71,7 +71,7 @@
             let status = document.getElementById('status');
             let result = document.getElementById('result');
 
-            fetch('http://localhost:8081/view/login', {
+            fetch('/view/login', {
                 method: 'post',
                 credentials: 'include',
                 headers: {

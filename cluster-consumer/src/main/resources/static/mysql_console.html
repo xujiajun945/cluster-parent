@@ -42,7 +42,7 @@
     <script type="text/javascript">
 
         function logout() {
-            fetch('http://localhost:8081/view/logout', {
+            fetch('/view/logout', {
                 method: 'delete',
                 credentials: "include",
                 headers: {
@@ -65,7 +65,7 @@
             let result = document.getElementById('result');
             let resultHidden = document.querySelectorAll('.queryTable, .resultHidden');
 
-            fetch('http://localhost:8081/mysql/show_tables', {
+            fetch('/mysql/show_tables', {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -105,7 +105,7 @@
                 return;
             }
 
-            fetch('http://localhost:8081/mysql/show_columns?databaseName=' + database + '&tableName=' + tableName, {
+            fetch('/mysql/show_columns?databaseName=' + database + '&tableName=' + tableName, {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -146,7 +146,7 @@
                 return;
             }
 
-            fetch('http://localhost:8081/mysql/show_create_table?databaseName=' + database + '&tableName=' + tableName, {
+            fetch('/mysql/show_create_table?databaseName=' + database + '&tableName=' + tableName, {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -220,7 +220,7 @@
             })
             params.columns = columns;
 
-            fetch('http://localhost:8081/mysql/create_table', {
+            fetch('/mysql/create_table', {
                 method: 'post',
                 credentials: 'include',
                 headers: {
