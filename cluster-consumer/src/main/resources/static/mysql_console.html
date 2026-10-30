@@ -55,7 +55,7 @@
                     localStorage.clear();
                     alert("你已退出登录！")
                     setTimeout(() => {
-                        window.location.href = 'http://localhost:8081';
+                        window.location.href = '/';
                     }, 1000)
                 }
             })
@@ -254,7 +254,7 @@
                 databaseName: localStorage.getItem('database'),
                 sql: diySql.value
             }
-            fetch('http://localhost:8081/mysql/diy_sql', {
+            fetch('/mysql/diy_sql', {
                 method: 'post',
                 credentials: 'include',
                 headers: {
