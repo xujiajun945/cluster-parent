@@ -9,9 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 
 /**
@@ -33,15 +35,14 @@ public class MysqlShellServiceImpl implements MysqlShellService {
 
     private String winBaseCommand = "mysql -t -h%s -u%s -p%s %s -e \"%s\"";
 
-    private String linuxBaseCommand = "mysql -t -h%s -u%s -p%s %s -e '%s'";
+    private String linuxBaseCommand = "mysql -t -h%s -u%s -p%s %s < %s";
 
     private String mysqlInsecureWarn = "mysql: [Warning] Using a password on the command line interface can be insecure.";
 
     @Override
-    public MysqlVO showTables(String databaseName) throws IOException {
+    public MysqlVO showTables(String databaseName) throws IOException, InterruptedException {
         String sql = "SHOW TABLES";
-        Process exec = buildProcess(databaseName, sql);
-        String info = invoke(exec);
+        String info = invoke(databaseName, sql);
 
         MysqlVO mysqlVO = new MysqlVO();
         mysqlVO.setDatabaseName(databaseName);
@@ -50,10 +51,9 @@ public class MysqlShellServiceImpl implements MysqlShellService {
     }
 
     @Override
-    public MysqlVO showColumns(String databaseName, String tableName) throws IOException {
+    public MysqlVO showColumns(String databaseName, String tableName) throws IOException, InterruptedException {
         String sql = "SHOW COLUMNS FROM " + tableName;
-        Process exec = buildProcess(databaseName, sql);
-        String info = invoke(exec);
+        String info = invoke(databaseName, sql);
 
         MysqlVO mysqlVO = new MysqlVO();
         mysqlVO.setDatabaseName(databaseName);
@@ -63,11 +63,10 @@ public class MysqlShellServiceImpl implements MysqlShellService {
     }
 
     @Override
-    public MysqlVO showCreateTable(String databaseName, String tableName) throws IOException {
+    public MysqlVO showCreateTable(String databaseName, String tableName) throws IOException, InterruptedException {
         String sql = "SHOW CREATE TABLE " + tableName;
 
-        Process exec = buildProcess(databaseName, sql);
-        String info = invoke(exec);
+        String info = invoke(databaseName, sql);
 
         MysqlVO mysqlVO = new MysqlVO();
         mysqlVO.setDatabaseName(databaseName);
@@ -77,20 +76,18 @@ public class MysqlShellServiceImpl implements MysqlShellService {
     }
 
     @Override
-    public String createTable(CreateTableVO createTableVO) throws IOException {
+    public String createTable(CreateTableVO createTableVO) throws IOException, InterruptedException {
         String sql = buildCreateTableSql(createTableVO);
         String databaseName = createTableVO.getDatabaseName();
-        Process exec = buildProcess(databaseName, sql);
-        String info = invoke(exec);
+        String info = invoke(databaseName, sql);
         return info;
     }
 
     @Override
-    public MysqlVO diySql(DiySqlVO diySqlVO) throws IOException {
+    public MysqlVO diySql(DiySqlVO diySqlVO) throws IOException, InterruptedException {
         String sql = diySqlVO.getSql();
         String databaseName = diySqlVO.getDatabaseName();
-        Process exec = buildProcess(databaseName, sql);
-        String info = invoke(exec);
+        String info = invoke(databaseName, sql);
 
         MysqlVO mysqlVO = new MysqlVO();
         mysqlVO.setDatabaseName(databaseName);
@@ -154,37 +151,52 @@ public class MysqlShellServiceImpl implements MysqlShellService {
         return sql;
     }
 
-    private Process buildProcess(String databaseName, String sql) throws IOException {
+    private String invoke(String databaseName, String sql) throws IOException, InterruptedException {
         String os = System.getProperty("os.name").toLowerCase();
-        Process exec;
-        if (os.contains("win")) {
-            String cmd = String.format(winBaseCommand, ip, username, password, databaseName, sql);
-            log.info("os: windows  cmd: {}", cmd);
-            exec = Runtime.getRuntime().exec(cmd);
-        } else {
-            String cmd = String.format(linuxBaseCommand, ip, username, password, databaseName, sql);
-            log.info("os: linux  cmd: {}", cmd);
-            exec = Runtime.getRuntime().exec(new String[]{"bash", "-c", cmd});
+        Process exec = null;
+        File sqlTmp = null;
+        try {
+            if (os.contains("win")) {
+                String cmd = String.format(winBaseCommand, ip, username, password, databaseName, sql);
+                log.info("os: windows  cmd: {}", cmd);
+                exec = Runtime.getRuntime().exec(cmd);
+            } else {
+                // linux系统需要特殊处理 bash窗口执行命令有单引号或者中文字符可能产生问题
+                // 将sql生成临时文件
+                sqlTmp = File.createTempFile("sql_run", ".sql", new File("/tmp"));
+                // 将sql写入临时文件
+                Files.writeString(sqlTmp.toPath(), sql);
+                // 生成执行命令
+                String cmd = String.format(linuxBaseCommand, ip, username, password, databaseName, sqlTmp.getAbsolutePath());
+                log.info("os: linux  cmd: {}", cmd);
+                exec = Runtime.getRuntime().exec(new String[]{"/bin/bash", "-c", cmd});
+            }
+            // 等待命令执行完成
+            exec.waitFor();
+            // io
+            try (InputStream inputStream = exec.getInputStream();
+                 InputStream errorStream = exec.getErrorStream()) {
+                byte[] infoBytes = inputStream.readAllBytes();
+                byte[] errorBytes = errorStream.readAllBytes();
+                String info = new String(infoBytes, StandardCharsets.UTF_8);
+                String error = new String(errorBytes, StandardCharsets.UTF_8);
+                log.info("==================== std ====================");
+                log.info(info);
+                log.info("==================== error ====================");
+                log.error(error);
+                String result = info + "\n" + error.replace(mysqlInsecureWarn, "");
+                return result;
+            }
+        } finally {
+            if (sqlTmp != null && sqlTmp.exists()) {
+                boolean deleted = sqlTmp.delete();
+                log.info("临时文件：{} 删除结果：{}", sqlTmp.getAbsolutePath(), deleted);
+            }
+            if (exec != null) {
+                exec.destroy();
+            }
         }
-        return exec;
-    }
 
-    private String invoke(Process exec) throws IOException {
-        // io
-        InputStream inputStream = exec.getInputStream();
-        InputStream errorStream = exec.getErrorStream();
-        byte[] infoBytes = inputStream.readAllBytes();
-        byte[] errorBytes = errorStream.readAllBytes();
-        String info = new String(infoBytes, StandardCharsets.UTF_8);
-        String error = new String(errorBytes, StandardCharsets.UTF_8);
-        inputStream.close();
-        errorStream.close();
-        log.info("==================== std ====================");
-        log.info(info);
-        log.info("==================== error ====================");
-        log.error(error);
-        String result = info + "\n" + error.replace(mysqlInsecureWarn, "");
-        return result;
     }
 
 }

@@ -12,13 +12,13 @@ import java.io.IOException;
  */
 public interface MysqlShellService {
 
-    MysqlVO showTables(String databaseName) throws IOException;
+    MysqlVO showTables(String databaseName) throws IOException, InterruptedException;
 
-    MysqlVO showColumns(String databaseName, String tableName) throws IOException;
+    MysqlVO showColumns(String databaseName, String tableName) throws IOException, InterruptedException;
 
-    MysqlVO showCreateTable(String dataBaseName, String tableName) throws IOException;
+    MysqlVO showCreateTable(String dataBaseName, String tableName) throws IOException, InterruptedException;
 
-    String createTable(CreateTableVO createTableVO) throws IOException;
+    String createTable(CreateTableVO createTableVO) throws IOException, InterruptedException;
 
-    MysqlVO diySql(DiySqlVO diySqlVO) throws IOException;
+    MysqlVO diySql(DiySqlVO diySqlVO) throws IOException, InterruptedException;
 }
