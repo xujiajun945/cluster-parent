@@ -22,33 +22,33 @@ public class MysqlViewController {
     private MysqlShellService shellService;
 
     @GetMapping(value = "/show_tables")
-    public ResponseData showTables(@RequestParam(value = "databaseName", defaultValue = "demo01") String databaseName) throws IOException {
+    public ResponseData showTables(@RequestParam(value = "databaseName", defaultValue = "demo01") String databaseName) throws IOException, InterruptedException {
         MysqlVO result = shellService.showTables(databaseName);
         return new ResponseData(result);
     }
 
     @GetMapping(value = "/show_columns")
     public ResponseData showColumns(@RequestParam("databaseName") String databaseName,
-                                    @RequestParam(value = "tableName") String tableName) throws IOException {
+                                    @RequestParam(value = "tableName") String tableName) throws IOException, InterruptedException {
         MysqlVO result = shellService.showColumns(databaseName, tableName);
         return new ResponseData(result);
     }
 
     @GetMapping(value = "/show_create_table")
     public ResponseData showCreateTable(@RequestParam("databaseName") String databaseName,
-                                        @RequestParam(value = "tableName") String tableName) throws IOException {
+                                        @RequestParam(value = "tableName") String tableName) throws IOException, InterruptedException {
         MysqlVO result = shellService.showCreateTable(databaseName, tableName);
         return new ResponseData(result);
     }
 
     @PostMapping(value = "/create_table")
-    public ResponseData createTable(@RequestBody CreateTableVO createTableVO) throws IOException {
+    public ResponseData createTable(@RequestBody CreateTableVO createTableVO) throws IOException, InterruptedException {
         String result = shellService.createTable(createTableVO);
         return new ResponseData(result);
     }
 
     @PostMapping(value = "/diy_sql")
-    public ResponseData diySql(@RequestBody DiySqlVO diySqlVO) throws IOException {
+    public ResponseData diySql(@RequestBody DiySqlVO diySqlVO) throws IOException, InterruptedException {
         MysqlVO mysqlVO1 = shellService.diySql(diySqlVO);
         return new ResponseData(mysqlVO1);
     }
