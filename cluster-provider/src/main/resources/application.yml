@@ -45,6 +45,10 @@ spring:
           # 最大获取连接的等待时间（-1ms: 无限阻塞等待），超时抛异常
           max-wait: -1ms
 
+cluster:
+  provider:
+    cluster-consumer: cluster-consumer
+
 cluster-provider:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

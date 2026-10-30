@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <style>
+        body {
+            background-image: url("./img/background.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            display: grid;
+            grid-template-columns: auto 200px;
+            gap: 14px 10px;
+            align-items: center;
+        }
+
+        .lable {
+            text-align: right;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+    <script type="text/javascript">
+
+        window.onload = function () {
+            fetch('http://localhost:8081/view/login/check', {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                console.log(response);
+                let block = document.getElementById('block');
+                if (response.status === 200) {
+                    let res = response.json();
+                    res.then(result => {
+                        if (result.data.username !== undefined) {
+                            console.log('result.data: ' + JSON.stringify(result.data));
+                            block.innerHTML = '<h2>' + result.data.username + '登录成功, 即将跳转</h2>'
+                            setTimeout(() => {
+                                window.location.replace('http://localhost:8081/mysql_console.html');
+                            }, 2000)
+                        }
+                    });
+
+                } else {
+                    block.innerText = JSON.stringify(response.json());
+                }
+            })
+        }
+
+
+        function login() {
+            let username = document.getElementById("username");
+            let password = document.getElementById("password");
+            let status = document.getElementById('status');
+            let result = document.getElementById('result');
+
+            fetch('http://localhost:8081/view/login', {
+                method: 'post',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                },
+                body: JSON.stringify({
+                    'username': username.value,
+                    'password': password.value
+                })
+            })
+            .then(response => {
+                console.log(response);
+                status.innerText = '状态： ' + response.status;
+                if (response.status === 200) {
+                    result.innerHTML = '<h4>登录成功, 即将跳转</h4>'
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:8081/mysql_console.html';
+                    }, 2000)
+                } else {
+                    result.innerText = JSON.stringify(response.json());
+                }
+            })
+
+        }
+
+    </script>
+</head>
+<body>
+<div id="block" class="login-box">
+        <span class="lable">用户名：</span>
+        <input type="text" id="username">
+
+        <span class="lable">密码：</span>
+        <input type="password" id="password">
+
+        <span></span>
+        <div>
+            <button type="button" onclick="login()">登录</button>
+            <span id="status" style="margin-left: 8px">状态</span>
+        </div>
+        <p id="result"></p>
+    </div>
+</div>
+</body>
+</html>

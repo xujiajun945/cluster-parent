@@ -30,10 +30,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Cookie[] cookies = request.getCookies();
-        HttpSession session = request.getSession();
-        LocalDateTime createTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(session.getCreationTime()), ZoneId.systemDefault());
-        log.info("session是否新生成？ {}", session.isNew());
-        log.info("session生成时间： {}", createTime);
+        // 校验jwt token
         String token = request.getHeader("auth");
         if (StringUtils.isNotEmpty(token)) {
             String subject = JwtTokenUtils.verifyToken(token);
@@ -41,13 +38,20 @@ public class LoginInterceptor implements HandlerInterceptor {
             Object userId = subjectMap.get("userId");
             if (null != userId) {
                 log.info("校验jwtToken成功！ userId: {}", userId);
+                request.setAttribute("userId", userId);
                 return true;
             }
         }
+        // 校验session
+        HttpSession session = request.getSession();
+        LocalDateTime createTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(session.getCreationTime()), ZoneId.systemDefault());
+        log.info("session是否新生成？ {}", session.isNew());
+        log.info("session生成时间： {}", createTime);
         UserDTO user = (UserDTO) session.getAttribute("user");
         if (null == user || null == user.getId()) {
             throw new ClusterException("未登录或登录失效！");
         }
+        request.setAttribute("userId", user.getId());
         return true;
     }
 

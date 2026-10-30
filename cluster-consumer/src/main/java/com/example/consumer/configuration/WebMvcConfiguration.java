@@ -1,6 +1,8 @@
 package com.example.consumer.configuration;
 
 import com.example.consumer.handler.LoginInterceptor;
+import com.example.core.handler.LocalDateSerializer;
+import com.example.core.handler.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -10,19 +12,12 @@ import org.springframework.http.converter.HttpMessageConverters;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 /**
@@ -48,17 +43,25 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 .allowedOriginPatterns("http://localhost:*")
                 .allowedMethods("*")
                 .allowCredentials(true);
+        registry.addMapping("/view/**")
+                .allowedOriginPatterns("http://localhost:*")
+                .allowedMethods("*")
+                .allowCredentials(true);
+        registry.addMapping("/mysql/**")
+                .allowedOriginPatterns("http://localhost:*")
+                .allowedMethods("*")
+                .allowCredentials(true);
         WebMvcConfigurer.super.addCorsMappings(registry);
     }
 
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(new LoginInterceptor())
-//                .addPathPatterns("/demo/consumer/**")
-//                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
-//                .order(0);
-//        WebMvcConfigurer.super.addInterceptors(registry);
-//    }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LoginInterceptor())
+                .addPathPatterns("/demo/consumer/**")
+                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
+                .order(0);
+        WebMvcConfigurer.super.addInterceptors(registry);
+    }
 
     @Bean
     @ConditionalOnMissingBean(JsonMapper.class)
@@ -78,32 +81,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .addModule(simpleModule)
                 .build();
-    }
-
-    static class LocalDateTimeSerializer extends ValueSerializer<LocalDateTime> {
-
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-
-        @Override
-        public void serialize(LocalDateTime value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
-            String dateTimeStr = FORMATTER.format(value);
-            gen.writeString(dateTimeStr);
-        }
-    }
-
-    static class LocalDateSerializer extends StdSerializer<LocalDate> {
-
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy:MM:dd");
-
-        public LocalDateSerializer() {
-            super(LocalDate.class);
-        }
-
-        @Override
-        public void serialize(LocalDate value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
-            String dateTimeStr = FORMATTER.format(value);
-            gen.writeString(dateTimeStr);
-        }
     }
 
 }

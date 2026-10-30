@@ -29,8 +29,8 @@ public class LoginController {
     }
 
     @PostMapping(value = "/normal")
-    public ResponseData normalLogin(@RequestBody UserVO userVO, HttpServletRequest request) {
-        LoginDTO loginDTO = loginService.normalLogin(userVO, request);
+    public ResponseData normalLogin(@RequestBody UserVO userVO) {
+        LoginDTO loginDTO = loginService.normalLogin(userVO);
         return new ResponseData(loginDTO);
     }
 }

@@ -4,10 +4,11 @@ import com.example.core.dto.UserDTO;
 import com.example.core.exception.ClusterException;
 import com.example.core.util.JsonUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,13 +17,15 @@ import java.util.Map;
  * @author xujiajun
  * @since 2026/10/24
  */
-@Component
 public class LoginUtils {
 
-    @Autowired
-    private HttpServletRequest request;
+    public static Integer getUserId() {
+        HttpServletRequest request = getRequest();
+        Integer userIdInAttribute = (Integer) request.getAttribute("userId");
+        if (userIdInAttribute != null) {
+            return userIdInAttribute;
+        }
 
-    public Integer getUserId() {
         String auth = request.getHeader("auth");
         if (StringUtils.isNotEmpty(auth)) {
             String subject = JwtTokenUtils.verifyToken(auth);
@@ -38,6 +41,26 @@ public class LoginUtils {
             throw new ClusterException("用户登录信息不存在！！");
         }
         return user.getId();
+    }
+
+    public static HttpServletRequest getRequest() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = requestAttributes.getRequest();
+        return request;
+    }
+
+    public static HttpServletResponse getReponse() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletResponse response = requestAttributes.getResponse();
+        return response;
+    }
+
+    public static HttpSession getSession() {
+        return getRequest().getSession();
+    }
+
+    public static HttpSession getSession(boolean flag) {
+        return getRequest().getSession(flag);
     }
 
 }

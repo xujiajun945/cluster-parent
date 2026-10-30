@@ -1,5 +1,8 @@
 package com.example.consumer.configuration;
 
+import com.example.core.handler.LocalDateSerializer;
+import com.example.core.handler.LocalDateTimeSerializer;
+import com.example.core.util.ValkeyClient;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.valkey.springframework.data.valkey.connection.ValkeyStandaloneConfiguration;
 import io.valkey.springframework.data.valkey.connection.lettuce.LettuceConnectionFactory;
@@ -51,8 +54,8 @@ public class RedisConfiguration {
 
         StringValkeySerializer stringValkeySerializer = new StringValkeySerializer();
         SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addSerializer(LocalDateTime.class, new WebMvcConfiguration.LocalDateTimeSerializer());
-        simpleModule.addSerializer(new WebMvcConfiguration.LocalDateSerializer());
+        simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
+        simpleModule.addSerializer(new LocalDateSerializer());
         JsonMapper jsonMapper = JsonMapper.builder()
                 .defaultTimeZone(TimeZone.getDefault())
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
@@ -74,6 +77,11 @@ public class RedisConfiguration {
 //        valkeyTemplate.setHashValueSerializer();
         valkeyTemplate.afterPropertiesSet();
         return valkeyTemplate;
+    }
+
+    @Bean
+    public ValkeyClient valkeyClient(ValkeyTemplate<String, Object> valkeyTemplate) {
+        return new ValkeyClient(valkeyTemplate);
     }
 
 }

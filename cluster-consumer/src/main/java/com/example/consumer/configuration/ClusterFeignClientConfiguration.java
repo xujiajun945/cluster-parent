@@ -1,7 +1,7 @@
 package com.example.consumer.configuration;
 
 import com.example.core.exception.ClusterException;
-import com.example.core.model.ProviderResponse;
+import com.example.core.model.GenericResponse;
 import com.example.core.model.ResponseData;
 import com.example.core.util.JsonUtils;
 import feign.*;
@@ -64,8 +64,8 @@ public class ClusterFeignClientConfiguration {
             // 获取原始的返回内容
             String json = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
             Class<?> dataClass = typeToClass(type);
-            ProviderResponse<?> providerResponse = JsonUtils.parse(json, ProviderResponse.class, dataClass);
-            Object data = providerResponse.getData();
+            GenericResponse<?> genericResponse = JsonUtils.parse(json, GenericResponse.class, dataClass);
+            Object data = genericResponse.getData();
             return data;
         }
 

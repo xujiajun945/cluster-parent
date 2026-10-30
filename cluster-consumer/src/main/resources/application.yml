@@ -70,3 +70,11 @@ spring:
 cluster:
   provider:
     cluster-provider: cluster-provider
+
+cluster-consumer:
+  datasource:
+    ip: 192.168.184.129
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.184.129:3306/demo01?useAffectedRows=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+    username: remoteUser
+    password: xujiajun945

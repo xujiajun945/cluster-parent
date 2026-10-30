@@ -1,7 +1,7 @@
 package com.example.consumer.web;
 
-import com.example.consumer.util.ValkeyClient;
 import com.example.core.model.ResponseData;
+import com.example.core.util.ValkeyClient;
 import com.example.core.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,30 +1,30 @@
-package com.example.consumer.util;
+package com.example.core.util;
 
-import com.example.core.util.JsonUtils;
 import io.valkey.springframework.data.valkey.core.ValkeyTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 
 /**
+ * Valkey客户端工具类
  *
  * @author xujiajun
  * @since 2026/10/27
  */
-@Component
 public class ValkeyClient {
 
-    @Autowired
-    private ValkeyTemplate<String, Object> valkeyTemplate;
+    private final ValkeyTemplate<String, Object> valkeyTemplate;
 
     private String namespace;
 
     private String group;
 
     private Duration defaultExpireTime = Duration.ofMinutes(2);
+
+    public ValkeyClient(ValkeyTemplate<String, Object> valkeyTemplate) {
+        this.valkeyTemplate = valkeyTemplate;
+    }
 
     public void set(String key, Object value) {
         valkeyTemplate.opsForValue().set(key, value, defaultExpireTime);

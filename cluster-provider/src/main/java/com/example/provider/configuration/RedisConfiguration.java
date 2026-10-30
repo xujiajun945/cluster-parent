@@ -1,5 +1,8 @@
 package com.example.provider.configuration;
 
+import com.example.core.handler.LocalDateSerializer;
+import com.example.core.handler.LocalDateTimeSerializer;
+import com.example.core.util.ValkeyClient;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.valkey.springframework.data.valkey.connection.ValkeyStandaloneConfiguration;
 import io.valkey.springframework.data.valkey.connection.lettuce.LettuceConnectionFactory;
@@ -12,19 +15,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 /**
@@ -83,30 +79,9 @@ public class RedisConfiguration {
         return valkeyTemplate;
     }
 
-    static class LocalDateTimeSerializer extends ValueSerializer<LocalDateTime> {
-
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-
-        @Override
-        public void serialize(LocalDateTime value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
-            String dateTimeStr = FORMATTER.format(value);
-            gen.writeString(dateTimeStr);
-        }
-    }
-
-    static class LocalDateSerializer extends StdSerializer<LocalDate> {
-
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy:MM:dd");
-
-        public LocalDateSerializer() {
-            super(LocalDate.class);
-        }
-
-        @Override
-        public void serialize(LocalDate value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
-            String dateTimeStr = FORMATTER.format(value);
-            gen.writeString(dateTimeStr);
-        }
+    @Bean
+    public ValkeyClient valkeyClient(ValkeyTemplate<String, Object> valkeyTemplate) {
+        return new ValkeyClient(valkeyTemplate);
     }
 
 }

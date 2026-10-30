@@ -137,6 +137,7 @@
 <!--                    <include>application.properties</include>-->
                     <include>application.yml</include>
                     <include>logback-spring.xml</include>
+                    <include>static/*</include>
                 </includes>
             </resource>
         </resources>

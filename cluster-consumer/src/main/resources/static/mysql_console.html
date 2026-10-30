@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MySQL Console</title>
+    <style>
+        .button {
+            width: 50px; /* 设置按钮的宽度 */
+            height: 21px; /* 设置按钮的高度，与宽度相同 */
+            border: brown; /* 移除边框 */
+            background-color: white; /* 设置按钮的背景颜色 */
+            color: brown; /* 设置按钮内文字的颜色 */
+            text-align: center; /* 文字居中显示 */
+            line-height: 21px; /* 设置行高与按钮高度相同，使文字垂直居中 */
+            cursor: pointer; /* 鼠标悬停时显示指针形状 */
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 900px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        /*.popup-overlay {*/
+        /*    display: none;*/
+        /*    position: fixed;*/
+        /*    top: 0;*/
+        /*    left: 0;*/
+        /*    width: 100%;*/
+        /*    height: 100%;*/
+        /*    background-color: rgba(0, 0, 0, 0.5);*/
+        /*    z-index: 999;*/
+        /*}*/
+    </style>
+    <script type="text/javascript">
+
+        function logout() {
+            fetch('http://localhost:8081/view/logout', {
+                method: 'delete',
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    localStorage.clear();
+                    alert("你已退出登录！")
+                    setTimeout(() => {
+                        window.location.href = 'http://localhost:8081';
+                    }, 1000)
+                }
+            })
+        }
+
+        function showTables() {
+            let result = document.getElementById('result');
+            let resultHidden = document.querySelectorAll('.queryTable, .resultHidden');
+
+            fetch('http://localhost:8081/mysql/show_tables', {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    let res = response.json()
+                    res.then(code => {
+                        let data = code.data;
+                        console.log('data: ' + data)
+                        if (data !== undefined) {
+                            console.log('database: ' + data.databaseName);
+                            console.log('table: ' + data.tableName)
+                            resultHidden.forEach(e => {
+                                e.hidden = false;
+                            });
+                            result.innerText = data.result;
+                            localStorage.setItem('database', data.databaseName);
+                            localStorage.setItem('table', data.tableName);
+                        }
+                    })
+                }
+            })
+        }
+
+        function showColumns() {
+            let queryTableInfo = document.getElementById('queryTableInfo');
+            let tableInfoResult = document.getElementById('tableInfoResult');
+            let tableName = document.getElementById('tableName').value;
+            let database = localStorage.getItem('database');
+
+            if (tableName === '') {
+                alert('表名不能为空！');
+                return;
+            }
+
+            fetch('http://localhost:8081/mysql/show_columns?databaseName=' + database + '&tableName=' + tableName, {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    let res = response.json()
+                    res.then(code => {
+                        let data = code.data;
+                        console.log('data: ' + data)
+                        if (data !== undefined) {
+                            console.log('database: ' + data.databaseName);
+                            console.log('table: ' + data.tableName)
+                            console.log('result: ' + data.result)
+                            if (data.result !== undefined && data.result !== '') {
+                                queryTableInfo.hidden = false;
+                                tableInfoResult.innerText = data.result;
+                                localStorage.setItem('database', data.databaseName);
+                                localStorage.setItem('table', data.tableName);
+                            }
+                        }
+                    })
+                }
+            })
+        }
+
+        function showCreateTable() {
+            let queryTableInfo = document.getElementById('queryTableInfo');
+            let tableInfoResult = document.getElementById('tableInfoResult');
+            let tableName = document.getElementById('tableName').value;
+            let database = localStorage.getItem('database');
+
+            if (tableName === '') {
+                alert('表名不能为空！');
+                return;
+            }
+
+            fetch('http://localhost:8081/mysql/show_create_table?databaseName=' + database + '&tableName=' + tableName, {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    let res = response.json()
+                    res.then(code => {
+                        let data = code.data;
+                        console.log('data: ' + data)
+                        if (data !== undefined) {
+                            console.log('database: ' + data.databaseName);
+                            console.log('table: ' + data.tableName)
+                            console.log('result: ' + data.result)
+                            if (data.result !== undefined && data.result !== '') {
+                                queryTableInfo.hidden = false;
+                                tableInfoResult.innerText = data.result;
+                                localStorage.setItem('database', data.databaseName);
+                                localStorage.setItem('table', data.tableName);
+                            }
+                        }
+                    })
+                }
+            })
+        }
+
+        function createTable() {
+            let singleList = document.getElementsByClassName('singleOption');
+            let tableName = document.getElementById('insertTableName');
+            let tableNote = document.getElementById('insertTableNote');
+
+            const params = {
+                databaseName: localStorage.getItem('database'),
+                tableName: tableName.value,
+                primaryKeyName: "",
+                tableNote: tableNote.value,
+                columns: []
+            };
+            let columns = [];
+
+            Array.from(singleList).forEach((value, index) => {
+                let fieldName = value.querySelector(" input[name='fieldName']");
+                let dataType = value.querySelector(" select[name='dataType']");
+                let fieldLen = value.querySelector(" input[type='number']");
+                let nNull = value.querySelector(" input[name='nNull']");
+                let uniq = value.querySelector(" input[name='uniq']");
+                let incr = value.querySelector(" input[name='incr']");
+                let defaultTextCheck = value.querySelector(" input[name='defaultTextCheck']");
+                let defaultText = value.querySelector(" input[name='defaultText']");
+                let note = value.querySelector(" input[name='note']");
+
+                if (index === 0) {
+                    params.primaryKeyName = fieldName.value;
+                }
+
+                columns[index] = {
+                    fieldName: fieldName.value,
+                    dataType: dataType.value,
+                    fieldLen: fieldLen.value,
+                    notNull: nNull.checked,
+                    uniq: uniq.checked,
+                    incr: incr.checked,
+                    defaultValueNotNull: defaultTextCheck.checked,
+                    defaultValue: defaultText.value,
+                    note: note.value,
+                    primary: index === 0 ? 1 : 0
+                };
+            })
+            params.columns = columns;
+
+            fetch('http://localhost:8081/mysql/create_table', {
+                method: 'post',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    let res = response.json();
+                    res.then(code => {
+                        let data = code.data;
+                        console.log('data: ' + data)
+                        alert(data);
+                    })
+                }
+            })
+        }
+
+        function diySql() {
+            let queryTableInfo = document.getElementById('queryTableInfo');
+            let tableInfoResult = document.getElementById('tableInfoResult');
+
+            let diySql = document.getElementById('diySql');
+            if (diySql.value === '') {
+                alert("sql语句为空！")
+                return;
+            }
+            const params = {
+                databaseName: localStorage.getItem('database'),
+                sql: diySql.value
+            }
+            fetch('http://localhost:8081/mysql/diy_sql', {
+                method: 'post',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    let res = response.json()
+                    res.then(code => {
+                        let data = code.data;
+                        console.log('data: ' + data)
+                        if (data !== undefined) {
+                            console.log('database: ' + data.databaseName);
+                            console.log('result: ' + data.result)
+                            if (data.result !== undefined && data.result !== '') {
+                                queryTableInfo.hidden = false;
+                                tableInfoResult.innerText = data.result;
+                                localStorage.setItem('database', data.databaseName);
+                            }
+                        }
+                    })
+                }
+            })
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            let openPopupBtn = document.getElementById('openPopupBtn');
+            let closePopupBtn = document.getElementById('closePopupBtn');
+            let popup = document.getElementById('popup');
+            let clearTableBtn = document.getElementById('clearTableBtn');
+            let optionList = document.getElementById('optionList');
+
+
+            openPopupBtn.addEventListener('click', function() {
+                popup.style.display = 'block';
+            });
+
+
+            closePopupBtn.addEventListener('click', function() {
+                popup.style.display = 'none';
+            });
+
+            clearTableBtn.addEventListener('click', function () {
+                let inputs = optionList.querySelectorAll('input, select');
+                inputs.forEach(el => {
+                    if (el.type === 'checkbox') {
+                        el.checked = false;
+                    } else if (el.tagName === 'select') {
+                        el.selectedIndex = 0;
+                    } else {
+                        el.value = '';
+                    }
+                })
+            });
+
+            // 为当前节点下的子节点添加点击事件
+            optionList.addEventListener('click', function (e) {
+                if (e.target.matches('.button')) {
+                    e.target.closest('.singleOption').remove();
+                }
+                if (e.target.matches('[name="defaultTextCheck"]')) {
+                    let defaultText = e.target.closest('.singleOption').querySelector(' input[name="defaultText"]');
+                    defaultText.readOnly = !e.target.checked;
+                    if (defaultText.readOnly) {
+                        defaultText.value = '';
+                    }
+                }
+            });
+
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let addOption = document.getElementById('addOption');
+            let optionList = document.getElementById('optionList');
+
+            let append = `
+                <div class="singleOption">
+                    <span style="font-size: small">字段名:</span><input type="text" name="fieldName" style="width: 50px"><span>&nbsp;&nbsp;</span>
+                    <span style="font-size: small">类型:</span>
+                    <select name="dataType">
+                        <option value="" style="display: none"></option>
+                        <option value="tinyint">tinyint</option>
+                        <option value="int">int</option>
+                        <option value="bigint">bigint</option>
+                        <option value="varchar">varchar</option>
+                        <option value="datetime">datetime</option>
+                        <option value="text">text</option>
+                    </select>
+                    <span>&nbsp;&nbsp;</span>
+                    <span style="font-size: small">长度:</span>
+                    <input type="number" min="0" style="width: 35px">
+                    <span>&nbsp;</span>
+                    <span style="font-size: small">非空:</span><input type="checkbox" name="nNull">
+                    <span style="font-size: small">唯一:</span><input type="checkbox" name="uniq">
+                    <span style="font-size: small">自增:</span><input type="checkbox" name="incr">
+                    <span>&nbsp;</span>
+                    <span style="font-size: small">默认值:</span>
+                    <input type="checkbox" name="defaultTextCheck">
+                    <input type="text" style="width: 100px" name="defaultText" readonly>
+                    <span>&nbsp;&nbsp;</span>
+                    <span style="font-size: small">备注:</span>
+                    <input type="text" style="width: 100px" name="note">
+                    <button class="button" style="font-size: small">删除</button>
+                </div>
+            `;
+
+            addOption.addEventListener('click', function () {
+                let temp = document.createElement('div');
+                temp.innerHTML = append;
+                let newItem = temp.firstElementChild;
+                optionList.append(newItem);
+            })
+        });
+    </script>
+</head>
+<body>
+<div>
+    <button type="button" onclick="logout()" style="color: firebrick">退出登录</button>
+</div>
+<div style="padding-left: 30px; padding-top: 50px">
+    <button type="button" onclick="showTables()">显示当前所有表</button><span>&nbsp;&nbsp;</span>
+    <button id="openPopupBtn">创建表</button>
+    <br>
+    <p>
+        <div class="queryTable" style="width: 800px; height: 150px" hidden>
+            <br>
+            输入表名：<input type="text" id="tableName">
+            <br><br>
+            <button type="button" onclick="showColumns()">查看表结构</button>
+            <button type="button" onclick="showCreateTable()">查看建表语句</button>
+        </div>
+    </p>
+    <p>
+        <pre id="result" style="font-family: Consolas, monospace" class="resultHidden" hidden>
+        </pre>
+        <div class="resultHidden" hidden>
+            <div style="width: 200px; height: 30px; text-align: left">
+                <span style="color: firebrick">自定义sql：</span>
+                <button type="button" onclick="diySql()">执行！</button>
+            </div>
+            <textarea rows="1" id="diySql" style="resize: none; font-size: x-large; width: 450px; height: 200px; overflow-x: hidden"></textarea>
+        </div>
+    </p>
+    <div id="queryTableInfo" hidden>
+        <h3>==========================================================</h3>
+        <pre id="tableInfoResult" style="font-family: Consolas, monospace">
+        </pre>
+    </div>
+
+    <div class="popup" id="popup">
+        <h2>新建表格</h2>
+        <p><button id="addOption">添加字段</button>
+            <span style="font-size: small">&nbsp;&nbsp;&nbsp;&nbsp;*第一个字段为主键</span>
+            <span style="font-size: small">&nbsp;&nbsp;&nbsp;&nbsp;*数字类型才可自增</span>
+        </p>
+        <p>
+            <span style="font-size: medium">表名:&nbsp;</span><input type="text" id="insertTableName" style="width: 70px">
+            <span style="font-size: medium">备注:&nbsp;</span><input type="text" id="insertTableNote" style="width: 120px">
+        </p>
+        <div id="optionList" style="width: 900px; height: 250px; overflow: auto">
+            <div class="singleOption">
+                <span style="font-size: small">主键名:</span><input type="text" name="fieldName" style="width: 50px"><span>&nbsp;&nbsp;</span>
+                <span style="font-size: small">类型:</span>
+                <select name="dataType">
+                    <option value="" style="display: none"></option>
+                    <option value="tinyint">tinyint</option>
+                    <option value="int">int</option>
+                    <option value="bigint">bigint</option>
+                    <option value="varchar">varchar</option>
+                    <option value="datetime">datetime</option>
+                    <option value="text">text</option>
+                </select>
+                <span>&nbsp;&nbsp;</span>
+                <span style="font-size: small">长度:</span>
+                <input type="number" min="0" style="width: 35px">
+                <span>&nbsp;</span>
+                <span style="font-size: small">非空:</span><input type="checkbox" name="nNull">
+                <span style="font-size: small">唯一:</span><input type="checkbox" name="uniq">
+                <span style="font-size: small">自增:</span><input type="checkbox" name="incr">
+                <span>&nbsp;</span>
+                <span style="font-size: small">默认值:</span>
+                <input type="checkbox" name="defaultTextCheck">
+                <input type="text" style="width: 100px" name="defaultText" readonly>
+                <span>&nbsp;&nbsp;</span>
+                <span style="font-size: small">备注:</span>
+                <input type="text" style="width: 100px" name="note">
+            </div>
+        </div>
+        <button id="closePopupBtn" style="color: brown">关闭</button>
+        <button id="clearTableBtn" >清空</button>
+        <button id="createTable" style="color: darkgreen; float: right" onclick="createTable()">创建</button>
+    </div>
+</div>
+</body>
+</html>

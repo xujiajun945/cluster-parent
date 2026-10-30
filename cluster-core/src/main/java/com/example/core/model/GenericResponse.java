@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class ProviderResponse<T> {
+public class GenericResponse<T> {
 
     private Integer code;
 
@@ -17,21 +17,21 @@ public class ProviderResponse<T> {
 
     private T data;
 
-    public ProviderResponse() {
+    public GenericResponse() {
         this(1, "ok");
     }
 
-    public ProviderResponse(T data) {
+    public GenericResponse(T data) {
         this();
         this.data = data;
     }
 
-    public ProviderResponse(Integer code, String message) {
+    public GenericResponse(Integer code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public ProviderResponse(Integer code, String message, T data) {
+    public GenericResponse(Integer code, String message, T data) {
         this.code = code;
         this.message = message;
         this.data = data;

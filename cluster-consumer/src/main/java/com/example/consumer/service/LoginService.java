@@ -2,7 +2,6 @@ package com.example.consumer.service;
 
 import com.example.core.dto.LoginDTO;
 import com.example.core.vo.UserVO;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author xujiajun
@@ -12,5 +11,9 @@ public interface LoginService {
 
     LoginDTO JWTLogin(UserVO userVO);
 
-    LoginDTO normalLogin(UserVO userVO, HttpServletRequest request);
+    LoginDTO normalLogin(UserVO userVO);
+
+    UserVO checkLogin();
+
+    void normalLogout();
 }
