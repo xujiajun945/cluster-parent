@@ -122,7 +122,7 @@
     </dependencies>
 
     <build>
-        <finalName>cluster-consumer</finalName>
+        <finalName>cluster-consumer-${suffix.name}</finalName>
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -132,12 +132,20 @@
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
+                <!-- 开启变量替换 -->
                 <filtering>true</filtering>
                 <includes>
-<!--                    <include>application.properties</include>-->
                     <include>application.yml</include>
+                    <include>application-${suffix.name}.yml</include>
                     <include>logback-spring.xml</include>
-                    <include>static/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- 关闭变量替换 -->
+                <filtering>false</filtering>
+                <includes>
+                    <include>static/**/*</include>
                 </includes>
             </resource>
         </resources>

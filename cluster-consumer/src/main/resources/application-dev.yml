@@ -1,0 +1,78 @@
+server:
+  port: 8081
+  servlet:
+    session:
+      cookie:
+        # 设置sessionId cookie的失效时间（单位：s）
+        max-age: 120
+        name: clusterSession_dev
+
+spring:
+  application:
+    name: cluster-consumer-dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.184.129:8848
+        username: nacos
+        password: xujiajun945
+        refresh-enabled: true
+        namespace: public
+      discovery:
+        server-addr: 192.168.184.129:8848
+        # 服务分组
+        group: demo01
+    # 开启负载均衡
+    loadbalancer:
+      enabled: true
+      # 开启负载均衡缓存（减少对注册中心的请求频率）
+      cache:
+        enabled: true
+        # 缓存过期时间，默认35s
+        ttl: 60s
+        # 缓存区大小，默认256条
+        capacity: 1024
+    openfeign:
+      httpclient:
+        hc5:
+          enabled: true
+  config:
+    # nacos:[dataId]?group=[group]
+    import[0]: nacos:demo?group=default
+  data:
+    valkey:
+      # valkey 基础配置
+      host: 192.168.184.129
+      port: 6379
+      username: default
+      password: valkey.xujiajun945
+      database: 0
+      # Basic connection
+      connect-timeout: 1000ms # 连接超时时间
+      timeout: 1000ms # 读取超时时间
+      client-name: ${spring.application.name} # Lettuce and Jedis only
+      client-type: lettuce
+      # Lettuce pooling(lettuce 本身是无池，连接复用)
+      lettuce:
+        pool:
+          enabled: true
+          # 最大连接数
+          max-active: 8
+          # 最大空闲数
+          max-idle: 8
+          # 最小空闲数
+          min-idle: 0
+          # 最大获取连接的等待时间（-1ms: 无限阻塞等待），超时抛异常
+          max-wait: -1ms
+
+cluster:
+  provider:
+    cluster-provider: cluster-provider-dev
+
+cluster-consumer:
+  datasource:
+    ip: 192.168.184.129
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.184.129:3306/demo01?useAffectedRows=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+    username: remoteUser
+    password: xujiajun945

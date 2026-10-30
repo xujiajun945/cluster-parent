@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cluster-provider-dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.184.129:8848
+        username: nacos
+        password: xujiajun945
+        namespace: public
+        refresh-enabled: true
+      discovery:
+        server-addr: 192.168.184.129:8848
+        group: demo01
+  config:
+    import[0]: nacos:demo?group=default
+  data:
+    valkey:
+      # valkey 基础配置
+      host: 192.168.184.129
+      port: 6379
+      username: default
+      password: valkey.xujiajun945
+      database: 0
+      # Basic connection
+      connect-timeout: 1000ms # 连接超时时间
+      timeout: 1000ms # 读取超时时间
+      client-name: ${spring.application.name} # Lettuce and Jedis only
+      client-type: lettuce
+      # Lettuce pooling(lettuce 本身是无池，连接复用)
+      lettuce:
+        pool:
+          enabled: true
+          # 最大连接数
+          max-active: 8
+          # 最大空闲数
+          max-idle: 8
+          # 最小空闲数
+          min-idle: 0
+          # 最大获取连接的等待时间（-1ms: 无限阻塞等待），超时抛异常
+          max-wait: -1ms
+
+cluster:
+  provider:
+    cluster-consumer: cluster-consumer-dev
+
+cluster-provider:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.184.129:3306/demo01?useAffectedRows=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+    username: remoteUser
+    password: xujiajun945

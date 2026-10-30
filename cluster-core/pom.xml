@@ -65,7 +65,7 @@
     </dependencies>
 
     <build>
-        <finalName>cluster-core</finalName>
+        <finalName>cluster-core-${suffix.name}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
