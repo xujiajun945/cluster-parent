@@ -11,4 +11,6 @@ import java.util.List;
 public interface MysqlService {
 
     List<String> showDatabases() throws SQLException;
+
+    List<String> showTables(String databaseName) throws SQLException;
 }

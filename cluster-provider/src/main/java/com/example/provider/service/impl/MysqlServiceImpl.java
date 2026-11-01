@@ -29,12 +29,26 @@ public class MysqlServiceImpl implements MysqlService {
 
         String sql = "SHOW DATABASES";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = statement.executeQuery();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 result.add(resultSet.getString(1));
             }
-            resultSet.close();
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> showTables(String databaseName) throws SQLException {
+        List<String> result = new ArrayList<>();
+
+        String sql = "SHOW TABLES FROM " + databaseName;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                result.add(resultSet.getString(1));
+            }
         }
         return result;
     }

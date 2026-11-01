@@ -27,8 +27,14 @@ public class MysqlViewController {
     private MysqlClient mysqlClient;
 
     @GetMapping(value = "/show_database")
-    public ResponseData showDatabase() throws IOException, InterruptedException {
+    public ResponseData showDatabase() {
         List<String> result = mysqlClient.showDatabases();
+        return new ResponseData(result);
+    }
+
+    @GetMapping(value = "/show_tables_list")
+    public ResponseData showTablesList(@RequestParam(value = "databaseName", defaultValue = "demo01") String databaseName) {
+        List<String> result = mysqlClient.showTables(databaseName);
         return new ResponseData(result);
     }
 

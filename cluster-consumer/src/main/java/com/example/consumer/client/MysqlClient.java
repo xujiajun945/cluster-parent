@@ -2,6 +2,7 @@ package com.example.consumer.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -15,4 +16,7 @@ public interface MysqlClient {
 
     @GetMapping(value = "/show_databases")
     List<String> showDatabases();
+
+    @GetMapping(value = "/show_tables")
+    List<String> showTables(@RequestParam("databaseName") String databaseName);
 }

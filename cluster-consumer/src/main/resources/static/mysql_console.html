@@ -71,6 +71,41 @@
                     })
                 }
             })
+
+
+        }
+
+        function showTablesList() {
+            let tableName = document.getElementById('tableName');
+            // 查当前数据库的表
+            fetch('/mysql/show_tables_list?databaseName=' + localStorage.getItem('database'), {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    let res = response.json();
+                    res.then(code => {
+                        let data = code.data;
+                        console.log('data: ' + data);
+                        if (data !== undefined) {
+                            tableName.innerHTML = '';
+                            for (let i = 0; i < data.length; i++) {
+                                let tmp = document.createElement('div');
+                                let append = '<option value="' + data[i] + '">' + data[i] + '</option>';
+                                tmp.innerHTML = append;
+                                tableName.append(tmp);
+                                // 存放tableName
+                                localStorage.setItem('table', data[0]);
+                            }
+                        }
+                    })
+                }
+            })
         }
 
         function logout() {
@@ -124,6 +159,8 @@
                     })
                 }
             })
+            // 查当前数据库的表
+            showTablesList();
         }
 
         function showColumns() {
@@ -327,6 +364,7 @@
             currentDatabase.addEventListener('change', function (e) {
                 console.log(this.value);
                 localStorage.setItem('database', this.value);
+                showTablesList();
             });
 
 
@@ -425,8 +463,9 @@
     <br>
     <p>
         <div class="queryTable" style="width: 800px; height: 150px" hidden>
-            <br>
-            输入表名：<input type="text" id="tableName">
+            <span style="font-size: small">输入表名：</span>
+            <select id="tableName">
+            </select>
             <br><br>
             <button type="button" onclick="showColumns()">查看表结构</button>
             <button type="button" onclick="showCreateTable()">查看建表语句</button>

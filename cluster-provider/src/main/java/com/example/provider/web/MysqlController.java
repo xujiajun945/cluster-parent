@@ -5,6 +5,7 @@ import com.example.provider.service.MysqlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
@@ -25,6 +26,12 @@ public class MysqlController {
     @GetMapping(value = "/show_databases")
     public ResponseData showDatabases() throws SQLException {
         List<String> result = mysqlService.showDatabases();
+        return new ResponseData(result);
+    }
+
+    @GetMapping(value = "/show_tables")
+    public ResponseData showTables(@RequestParam("databaseName") String databaseName) throws SQLException {
+        List<String> result = mysqlService.showTables(databaseName);
         return new ResponseData(result);
     }
 }
