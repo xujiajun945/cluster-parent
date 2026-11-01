@@ -41,6 +41,38 @@
     </style>
     <script type="text/javascript">
 
+        window.onload = function () {
+            let currentDatabase = document.getElementById('currentDatabase');
+
+            fetch('/mysql/show_database', {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth': localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    let res = response.json()
+                    res.then(code => {
+                        let data = code.data;
+                        console.log('data: ' + data);
+                        if (data !== undefined) {
+                            for (let i = 0; i < data.length; i++) {
+                                let tmp = document.createElement('div');
+                                let append = '<option value="' + data[i] + '">' + data[i] + '</option>';
+                                tmp.innerHTML = append;
+                                currentDatabase.append(tmp);
+                                // 存放databaseName
+                                localStorage.setItem('database', data[0]);
+                            }
+                        }
+                    })
+                }
+            })
+        }
+
         function logout() {
             fetch('/view/logout', {
                 method: 'delete',
@@ -65,7 +97,7 @@
             let result = document.getElementById('result');
             let resultHidden = document.querySelectorAll('.queryTable, .resultHidden');
 
-            fetch('/mysql/show_tables', {
+            fetch('/mysql/show_tables?databaseName=' + localStorage.getItem('database'), {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -284,12 +316,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            let currentDatabase = document.getElementById('currentDatabase');
 
             let openPopupBtn = document.getElementById('openPopupBtn');
             let closePopupBtn = document.getElementById('closePopupBtn');
             let popup = document.getElementById('popup');
             let clearTableBtn = document.getElementById('clearTableBtn');
             let optionList = document.getElementById('optionList');
+
+            currentDatabase.addEventListener('change', function (e) {
+                console.log(this.value);
+                localStorage.setItem('database', this.value);
+            });
 
 
             openPopupBtn.addEventListener('click', function() {
@@ -379,6 +417,9 @@
     <button type="button" onclick="logout()" style="color: firebrick">退出登录</button>
 </div>
 <div style="padding-left: 30px; padding-top: 50px">
+    <span style="font-size: small">当前数据库:</span>
+    <select id="currentDatabase">
+    </select>
     <button type="button" onclick="showTables()">显示当前所有表</button><span>&nbsp;&nbsp;</span>
     <button id="openPopupBtn">创建表</button>
     <br>

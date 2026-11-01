@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -70,14 +71,15 @@ public class ClusterFeignClientConfiguration {
         }
 
         private Class<?> typeToClass(Type type) {
-            String dataTypeName = type.getTypeName();
-            Class<?> dataClass;
-            try {
-                dataClass = Class.forName(dataTypeName);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+            if (type instanceof Class<?>) {
+                return (Class<?>) type;
+            } else if (type instanceof ParameterizedType parameterizedType) {
+                Type rawType = parameterizedType.getRawType();
+                return (Class<?>) rawType;
+            } else {
+                throw new RuntimeException(type.getTypeName());
             }
-            return dataClass;
+
         }
     }
 

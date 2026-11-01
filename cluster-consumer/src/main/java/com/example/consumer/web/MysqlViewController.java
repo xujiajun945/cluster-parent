@@ -1,5 +1,6 @@
 package com.example.consumer.web;
 
+import com.example.consumer.client.MysqlClient;
 import com.example.consumer.service.MysqlShellService;
 import com.example.core.model.ResponseData;
 import com.example.core.vo.CreateTableVO;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author xujiajun
@@ -20,6 +22,15 @@ public class MysqlViewController {
 
     @Autowired
     private MysqlShellService shellService;
+
+    @Autowired
+    private MysqlClient mysqlClient;
+
+    @GetMapping(value = "/show_database")
+    public ResponseData showDatabase() throws IOException, InterruptedException {
+        List<String> result = mysqlClient.showDatabases();
+        return new ResponseData(result);
+    }
 
     @GetMapping(value = "/show_tables")
     public ResponseData showTables(@RequestParam(value = "databaseName", defaultValue = "demo01") String databaseName) throws IOException, InterruptedException {
