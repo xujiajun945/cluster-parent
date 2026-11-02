@@ -76,3 +76,8 @@ cluster-consumer:
     url: jdbc:mysql://172.22.98.193:3306/demo01?useAffectedRows=true&autoReconnect=true&useUnicode=true&characterEncoding=utf-8
     username: ecsUser
     password: xujiajun945
+  valkey-session:
+    namespace: 'spring:valkey:prod:'
+    sessionPrefix: 'session:'
+    expirePrefix: 'expire:'
+    maxInactiveInterval: 120

@@ -9,6 +9,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -103,6 +104,15 @@ public class JsonUtils {
         JavaType javaType = PARSER.getTypeFactory().constructParametricType(tClass, classes);
         T t = PARSER.readValue(json, javaType);
         return t;
+    }
+
+    public static Object parse(String json, Type type) {
+        if (json == null) {
+            return null;
+        }
+        JavaType javaType = PARSER.getTypeFactory().constructType(type);
+        Object value = PARSER.readValue(json, javaType);
+        return value;
     }
 
     public static void main(String[] args) {

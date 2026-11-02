@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
@@ -28,6 +29,7 @@ import java.util.TimeZone;
  * @author xujiajun
  * @since 2026/10/26
  */
+@EnableSpringHttpSession
 @Configuration
 public class RedisConfiguration {
 
@@ -42,15 +44,19 @@ public class RedisConfiguration {
         return configuration;
     }
 
+    @Bean
+    public LettuceConnectionFactory lettuceConnectionFactory(@Qualifier("valkeyStandaloneConfiguration") ValkeyStandaloneConfiguration configuration) {
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(configuration);
+        factory.start();
+        return factory;
+    }
+
 
     @ConditionalOnMissingBean
     @Bean
-    public ValkeyTemplate<String, Object> valkeyTemplate(@Qualifier("valkeyStandaloneConfiguration") ValkeyStandaloneConfiguration configuration) {
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(configuration);
-        factory.start();
-
+    public ValkeyTemplate<String, Object> valkeyTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
         ValkeyTemplate<String, Object> valkeyTemplate = new ValkeyTemplate<>();
-        valkeyTemplate.setConnectionFactory(factory);
+        valkeyTemplate.setConnectionFactory(lettuceConnectionFactory);
 
         StringValkeySerializer stringValkeySerializer = new StringValkeySerializer();
         SimpleModule simpleModule = new SimpleModule();
@@ -70,7 +76,7 @@ public class RedisConfiguration {
                 .build();
         JacksonJsonValkeySerializer<Object> jsonValueSerializer = new JacksonJsonValkeySerializer<>(jsonMapper, Object.class);
 
-        valkeyTemplate.setEnableDefaultSerializer(false);
+        valkeyTemplate.setEnableDefaultSerializer(true);
         valkeyTemplate.setKeySerializer(stringValkeySerializer);
         valkeyTemplate.setValueSerializer(jsonValueSerializer);
 //        valkeyTemplate.setHashKeySerializer();
@@ -78,6 +84,20 @@ public class RedisConfiguration {
         valkeyTemplate.afterPropertiesSet();
         return valkeyTemplate;
     }
+
+    @Bean
+    public ValkeySessionRepository sessionRepository(ValkeyTemplate<String, Object> template, ValkeySessionConfig config) {
+        return new ValkeySessionRepository(template, config);
+    }
+
+//    @Bean
+//    public CookieSerializer cookieSerializer() {
+//        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+//        serializer.setCookieName("JSESSIONID");
+//        serializer.setCookiePath("/");
+//        serializer.setDomainNamePattern("^.+?\\.(\\w+\\.[a-z]+)$");
+//        return serializer;
+//    }
 
     @Bean
     public ValkeyClient valkeyClient(ValkeyTemplate<String, Object> valkeyTemplate) {

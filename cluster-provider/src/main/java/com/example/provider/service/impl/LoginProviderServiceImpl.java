@@ -1,6 +1,7 @@
 package com.example.provider.service.impl;
 
 import com.example.core.dto.UserDTO;
+import com.example.core.exception.ClusterException;
 import com.example.core.model.User;
 import com.example.core.vo.UserVO;
 import com.example.provider.dal.dao.LoginProviderMapper;
@@ -24,6 +25,9 @@ public class LoginProviderServiceImpl implements LoginProviderService {
         String username = userVO.getUsername();
         String password = userVO.getPassword();
         User user = loginProviderMapper.getByUsernameAndPassword(username, password);
+        if (user == null) {
+            return null;
+        }
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
         return userDTO;
