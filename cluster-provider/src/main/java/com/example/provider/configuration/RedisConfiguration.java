@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
@@ -28,6 +29,7 @@ import java.util.TimeZone;
  * @author xujiajun
  * @since 2026/10/26
  */
+@EnableSpringHttpSession
 @Configuration
 public class RedisConfiguration {
 
@@ -70,13 +72,18 @@ public class RedisConfiguration {
                 .build();
         JacksonJsonValkeySerializer<Object> jsonValueSerializer = new JacksonJsonValkeySerializer<>(jsonMapper, Object.class);
 
-        valkeyTemplate.setEnableDefaultSerializer(false);
+        valkeyTemplate.setEnableDefaultSerializer(true);
         valkeyTemplate.setKeySerializer(stringValkeySerializer);
         valkeyTemplate.setValueSerializer(jsonValueSerializer);
 //        valkeyTemplate.setHashKeySerializer();
 //        valkeyTemplate.setHashValueSerializer();
         valkeyTemplate.afterPropertiesSet();
         return valkeyTemplate;
+    }
+
+    @Bean
+    public ValkeySessionRepository sessionRepository(ValkeyTemplate<String, Object> template, ValkeySessionConfig config) {
+        return new ValkeySessionRepository(template, config);
     }
 
     @Bean

@@ -4,7 +4,7 @@ server:
     session:
       cookie:
         # 设置sessionId cookie的失效时间（单位：s）
-        max-age: 240
+        max-age: 600
         name: clusterSession_dev
 
 spring:
@@ -80,4 +80,4 @@ cluster-consumer:
     namespace: 'spring:valkey:dev:'
     sessionPrefix: 'session:'
     expirePrefix: 'expire:'
-    maxInactiveInterval: 240
+    maxInactiveInterval: 600

@@ -57,7 +57,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/demo/consumer/**")
+                .addPathPatterns("/demo/consumer/**", "/mysql/**")
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .order(0);
         WebMvcConfigurer.super.addInterceptors(registry);

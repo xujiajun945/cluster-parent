@@ -87,9 +87,13 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public UserVO checkLogin() {
-        HttpSession session = LoginUtils.getSession();
-        UserDTO user = (UserDTO) session.getAttribute("user");
+        HttpSession session = LoginUtils.getSession(false);
         UserVO userVO = new UserVO();
+        if (session == null) {
+            return userVO;
+        }
+        UserDTO user = (UserDTO) session.getAttribute("user");
+
         if (user != null) {
             BeanUtils.copyProperties(user, userVO);
         }

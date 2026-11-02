@@ -70,7 +70,7 @@ public class RedisConfiguration {
                 // Include.NON_DEFAULT 属性为默认值不序列化
                 // Include.NON_EMPTY 属性为 空（""） 或者为 NULL 都不序列化，则返回的json是没有这个字段的。这样对移动端会更省流量
                 // Include.NON_NULL 属性为NULL 不序列化
-                .changeDefaultPropertyInclusion(value -> JsonInclude.Value.ALL_NON_NULL)
+                .changeDefaultPropertyInclusion(value -> JsonInclude.Value.ALL_ALWAYS)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .addModule(simpleModule)
                 .build();
@@ -80,7 +80,7 @@ public class RedisConfiguration {
         valkeyTemplate.setKeySerializer(stringValkeySerializer);
         valkeyTemplate.setValueSerializer(jsonValueSerializer);
 //        valkeyTemplate.setHashKeySerializer();
-//        valkeyTemplate.setHashValueSerializer();
+//        valkeyTemplate.setHashValueSerializer(jsonValueSerializer);
         valkeyTemplate.afterPropertiesSet();
         return valkeyTemplate;
     }

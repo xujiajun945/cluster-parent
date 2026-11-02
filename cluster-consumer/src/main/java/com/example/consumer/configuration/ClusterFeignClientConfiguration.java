@@ -1,15 +1,21 @@
 package com.example.consumer.configuration;
 
+import com.example.consumer.handler.ClusterFeignIntercetor;
+import com.example.consumer.util.LoginUtils;
 import com.example.core.exception.ClusterException;
 import com.example.core.model.GenericResponse;
 import com.example.core.model.ResponseData;
 import com.example.core.util.JsonUtils;
 import feign.*;
 import feign.codec.Decoder;
+import feign.codec.EncodeException;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
+import feign.form.spring.SpringFormEncoder;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cloud.openfeign.support.FeignEncoderProperties;
 import org.springframework.cloud.openfeign.support.FeignHttpMessageConverters;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +56,11 @@ public class ClusterFeignClientConfiguration {
     @Bean
     public Decoder decoder() {
         return new ClassicDecoder();
+    }
+
+    @Bean
+    public RequestInterceptor interceptor() {
+        return new ClusterFeignIntercetor();
     }
 
     @Bean

@@ -32,7 +32,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         Cookie[] cookies = request.getCookies();
         // 校验jwt token
         String token = request.getHeader("auth");
-        if (StringUtils.isNotEmpty(token)) {
+        if (StringUtils.isNotEmpty(token) && !"null".equalsIgnoreCase(token)) {
             String subject = JwtTokenUtils.verifyToken(token);
             Map<String, Object> subjectMap = JsonUtils.parseMap(subject, HashMap.class, String.class, Object.class);
             Object userId = subjectMap.get("userId");
