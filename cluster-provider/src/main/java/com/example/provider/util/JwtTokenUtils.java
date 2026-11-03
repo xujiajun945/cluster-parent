@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @author xujiajun
  * @since 2026/10/21
  */
-public class JwtTokenUtils {
+public final class JwtTokenUtils {
 
     private static final String ISSUER = "cluster-user-center";
 

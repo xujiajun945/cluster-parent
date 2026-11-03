@@ -20,7 +20,7 @@ import java.util.*;
  * @since 2026/10/19
  */
 @Slf4j
-public class JsonUtils {
+public final class JsonUtils {
 
     // JsonMapper线程安全
     private static final JsonMapper PARSER;

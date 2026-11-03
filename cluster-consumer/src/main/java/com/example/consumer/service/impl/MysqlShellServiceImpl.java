@@ -6,6 +6,7 @@ import com.example.core.vo.CreateTableVO;
 import com.example.core.vo.DiySqlVO;
 import com.example.core.vo.MysqlVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -117,15 +118,18 @@ public class MysqlShellServiceImpl implements MysqlShellService {
                     .append(column.getIncr() ? "AUTO_INCREMENT" : "");
             // 判断有无默认值
             if (column.getDefaultValueNotNull()) {
-                boolean hasSingleQuote = switch (column.getDataType().toLowerCase()) {
+                boolean isNumberType = switch (column.getDataType().toLowerCase()) {
                     case "int", "bigint", "tinyint" -> false;
                     default -> true;
                 };
+                if (isNumberType && StringUtils.isEmpty(column.getDefaultValue())) {
+                    column.setDefaultValue("0");
+                }
                 columnsBuilder
                         .append(" DEFAULT ")
-                        .append(!hasSingleQuote || "current_timestamp".equalsIgnoreCase(column.getDefaultValue()) ? "" : "'")
+                        .append(!isNumberType || "current_timestamp".equalsIgnoreCase(column.getDefaultValue()) ? "" : "'")
                         .append(column.getDefaultValue())
-                        .append(!hasSingleQuote || "current_timestamp".equalsIgnoreCase(column.getDefaultValue()) ? "" : "'");
+                        .append(!isNumberType || "current_timestamp".equalsIgnoreCase(column.getDefaultValue()) ? "" : "'");
             }
             columnsBuilder
                     .append(" COMMENT '")
@@ -135,17 +139,6 @@ public class MysqlShellServiceImpl implements MysqlShellService {
         String index = "\tPRIMARY KEY(" + primaryKeyName + ")\n";
         String lastLine = ") ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COMMENT '"+ tableNote +"'";
         columnsBuilder.append(index).append(lastLine);
-//        String sql = header + createTableVO.getTableName() + " " + "(\n" +
-//                "\t" + createTableVO.getFieldName() + " BIGINT(20) NOT NULL AUTO_INCREMENT,\n" +
-//                "\tuser_questionnaire_version_id BIGINT(20) NOT NULL DEFAULT 0 COMMENT '用户版本表id',\n" +
-//                "\tquestion_id BIGINT(20) NOT NULL DEFAULT 0 COMMENT '问卷问题表id',\n" +
-//                "\ttype INT(10) NOT NULL DEFAULT 0 COMMENT '题目类型(单选, 多选等)',\n" +
-//                "\tanswer VARCHAR(500) NOT NULL DEFAULT '' COMMENT '用户给出的答案',\n" +
-//                "\tcreate_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n" +
-//                "\tupdate_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',\n" +
-//                "\tis_delete TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否删除',\n" +
-//                "\tPRIMARY KEY(id)\n" +
-//                ") ENGINE = INNODB DEFAULT CHARSET = utf8 COMMENT '用户答案表';";
         String sql = columnsBuilder.toString();
         log.info("创建表，sql： {}", sql);
         return sql;
