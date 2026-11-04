@@ -3,7 +3,7 @@ server:
   servlet:
     session:
       cookie:
-        name: clusterSession_dev
+        name: clusterSession
 
 spring:
   application:
