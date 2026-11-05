@@ -12,6 +12,6 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface LoginProviderMapper {
 
-    @Select("SELECT * FROM user WHERE username = #{username} AND password = #{password}")
+    @Select("SELECT * FROM demo01.user WHERE username = #{username} AND password = #{password}")
     User getByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
 }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.provider.dal.dao.EmployeesMapper">
+
+    <resultMap id="baseResultMap" type="com.example.core.model.Employees">
+        <id property="empNo" column="emp_no" javaType="Integer"/>
+        <result property="birthDate" column="birth_date" javaType="Date"/>
+        <result property="firstName" column="first_name" javaType="String"/>
+        <result property="lastName" column="last_name" javaType="String"/>
+        <result property="gender" column="gender" javaType="Integer"/>
+        <result property="hireDate" column="hire_date" javaType="Date"/>
+    </resultMap>
+
+    <sql id="baseColumnList" >
+        `emp_no`, birth_date, first_name, last_name, gender, hire_date
+    </sql>
+
+    <sql id="noPrimaryKeyColumn">
+        birth_date, first_name, last_name, gender, hire_date
+    </sql>
+
+    <select id="countByQuery" parameterType="com.example.core.query.EmployeesQuery" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            employees.employees
+        <include refid="pageQuery"/>
+    </select>
+
+    <select id="listByQuery" parameterType="com.example.core.query.EmployeesQuery" resultType="com.example.core.model.Employees">
+        SELECT
+            <include refid="baseColumnList"/>
+        FROM
+            employees.employees
+        <include refid="pageQuery"/>
+        LIMIT
+            #{start}, #{rows}
+    </select>
+
+    <sql id="pageQuery" >
+        <where>
+            <if test="keywordsType != null and keywordsType == 1">
+                first_name LIKE CONCAT(#{keywords}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="getById" resultType="com.example.core.model.Employees">
+        SELECT
+            <include refid="baseColumnList"/>
+        FROM
+            employees.employees
+        WHERE
+            emp_no = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.example.core.model.Employees" useGeneratedKeys="true" keyProperty="empNo" keyColumn="emp_no">
+        INSERT INTO
+            employees.employees
+        <trim prefix="(" suffix=")">
+            <include refid="noPrimaryKeyColumn"/>
+        </trim>
+        VALUES
+            (#{birthDate}, #{firstName}, #{lastName}, #{gender}, #{hireDate})
+    </insert>
+
+</mapper>

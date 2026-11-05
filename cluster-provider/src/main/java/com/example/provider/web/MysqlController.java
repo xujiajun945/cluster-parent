@@ -1,6 +1,9 @@
 package com.example.provider.web;
 
+import com.example.core.dto.EmployeesDTO;
+import com.example.core.model.Pager;
 import com.example.core.model.ResponseData;
+import com.example.core.query.EmployeesQuery;
 import com.example.provider.service.MysqlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,5 +36,11 @@ public class MysqlController {
     public ResponseData showTables(@RequestParam("databaseName") String databaseName) throws SQLException {
         List<String> result = mysqlService.showTables(databaseName);
         return new ResponseData(result);
+    }
+
+    @GetMapping(value = "/employees")
+    public ResponseData getByQuery(EmployeesQuery query) {
+        Pager<EmployeesDTO> pager = mysqlService.getEmployeesPageByQuery(query);
+        return new ResponseData(pager);
     }
 }
