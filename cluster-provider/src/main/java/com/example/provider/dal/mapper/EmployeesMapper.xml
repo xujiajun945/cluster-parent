@@ -7,7 +7,7 @@
         <result property="birthDate" column="birth_date" javaType="Date"/>
         <result property="firstName" column="first_name" javaType="String"/>
         <result property="lastName" column="last_name" javaType="String"/>
-        <result property="gender" column="gender" javaType="Integer"/>
+        <result property="gender" column="gender" javaType="String"/>
         <result property="hireDate" column="hire_date" javaType="Date"/>
     </resultMap>
 
@@ -27,7 +27,7 @@
         <include refid="pageQuery"/>
     </select>
 
-    <select id="listByQuery" parameterType="com.example.core.query.EmployeesQuery" resultType="com.example.core.model.Employees">
+    <select id="listByQuery" parameterType="com.example.core.query.EmployeesQuery" resultMap="baseResultMap">
         SELECT
             <include refid="baseColumnList"/>
         FROM
@@ -45,7 +45,7 @@
         </where>
     </sql>
 
-    <select id="getById" resultType="com.example.core.model.Employees">
+    <select id="getById" resultMap="baseResultMap">
         SELECT
             <include refid="baseColumnList"/>
         FROM

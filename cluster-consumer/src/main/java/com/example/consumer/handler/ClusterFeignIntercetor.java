@@ -16,6 +16,8 @@ public class ClusterFeignIntercetor implements RequestInterceptor {
         public void apply(RequestTemplate template) {
             HttpServletRequest httpServletRequest = LoginUtils.getRequest();
             String cookie = httpServletRequest.getHeader("Cookie");
+            String auth = httpServletRequest.getHeader("auth");
             template.header("Cookie", cookie);
+            template.header("auth", auth);
         }
     }

@@ -22,7 +22,7 @@ public class EmployeesDTO implements Serializable {
 
     private String lastName;
 
-    private Integer gender;
+    private String gender;
 
     private Date hireDate;
 }

@@ -2,7 +2,7 @@ package com.example.consumer.service.impl;
 
 import com.example.consumer.client.PageClient;
 import com.example.consumer.service.PageService;
-import com.example.core.model.Employees;
+import com.example.core.dto.EmployeesDTO;
 import com.example.core.model.Pager;
 import com.example.core.query.EmployeesQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,8 @@ public class PageServiceImpl implements PageService {
     private PageClient pageClient;
 
     @Override
-    public Pager<Employees> getByQuery(EmployeesQuery query) {
-        Pager<Employees> pager = pageClient.getByQuery(query);
+    public Pager<EmployeesDTO> getByQuery(EmployeesQuery query) {
+        Pager<EmployeesDTO> pager = pageClient.getByQuery(query);
         return pager;
     }
 }

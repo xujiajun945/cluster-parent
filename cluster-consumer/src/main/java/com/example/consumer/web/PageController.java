@@ -1,7 +1,7 @@
 package com.example.consumer.web;
 
 import com.example.consumer.service.PageService;
-import com.example.core.model.Employees;
+import com.example.core.dto.EmployeesDTO;
 import com.example.core.model.Pager;
 import com.example.core.model.ResponseData;
 import com.example.core.query.EmployeesQuery;
@@ -24,7 +24,7 @@ public class PageController {
 
     @GetMapping(value = "/employees")
     public ResponseData pageEmployees(EmployeesQuery query) {
-        Pager<Employees> pager = pageService.getByQuery(query);
+        Pager<EmployeesDTO> pager = pageService.getByQuery(query);
         return new ResponseData(pager);
     }
 }

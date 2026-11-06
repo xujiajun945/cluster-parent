@@ -1,6 +1,6 @@
 package com.example.consumer.service;
 
-import com.example.core.model.Employees;
+import com.example.core.dto.EmployeesDTO;
 import com.example.core.model.Pager;
 import com.example.core.query.EmployeesQuery;
 
@@ -11,5 +11,5 @@ import com.example.core.query.EmployeesQuery;
  */
 public interface PageService {
 
-    Pager<Employees> getByQuery(EmployeesQuery query);
+    Pager<EmployeesDTO> getByQuery(EmployeesQuery query);
 }

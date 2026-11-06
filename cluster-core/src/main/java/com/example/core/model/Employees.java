@@ -23,7 +23,7 @@ public class Employees implements Serializable {
 
     private String lastName;
 
-    private Integer gender;
+    private String gender;
 
     private Date hireDate;
 
