@@ -1,6 +1,6 @@
 package com.example.consumer.configuration;
 
-import com.example.core.handler.clusterRandomLoadBalancerClient;
+import com.example.core.handler.ClusterRoundRobinLoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClients;
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @LoadBalancerClients(value =
         {
-                @LoadBalancerClient(name = "${cluster.provider.cluster-provider}", configuration = clusterRandomLoadBalancerClient.class),
+                @LoadBalancerClient(name = "${cluster.provider.cluster-provider}", configuration = ClusterRoundRobinLoadBalancerClient.class),
         }
 )
 public class LoadbalancerConfiguration {
