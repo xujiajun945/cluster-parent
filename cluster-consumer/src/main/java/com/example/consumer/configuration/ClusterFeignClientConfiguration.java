@@ -1,28 +1,22 @@
 package com.example.consumer.configuration;
 
 import com.example.consumer.handler.ClusterFeignIntercetor;
-import com.example.consumer.util.LoginUtils;
 import com.example.core.exception.ClusterException;
 import com.example.core.model.GenericResponse;
 import com.example.core.model.ResponseData;
 import com.example.core.util.JsonUtils;
 import feign.*;
 import feign.codec.Decoder;
-import feign.codec.EncodeException;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import feign.form.spring.SpringFormEncoder;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.cloud.openfeign.support.FeignEncoderProperties;
 import org.springframework.cloud.openfeign.support.FeignHttpMessageConverters;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -75,23 +69,10 @@ public class ClusterFeignClientConfiguration {
         public Object decode(Response response, Type type) throws IOException, FeignException {
             // 获取原始的返回内容
             String json = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
-            Class<?> dataClass = typeToClass(type);
-            GenericResponse<?> genericResponse = JsonUtils.parse(json, GenericResponse.class, dataClass);
-            Object data = genericResponse.getData();
-            return data;
+            GenericResponse<?> genericResponse = JsonUtils.parseGenericResponse(json, type);
+            return genericResponse.getData();
         }
 
-        private Class<?> typeToClass(Type type) {
-            if (type instanceof Class<?>) {
-                return (Class<?>) type;
-            } else if (type instanceof ParameterizedType parameterizedType) {
-                Type rawType = parameterizedType.getRawType();
-                return (Class<?>) rawType;
-            } else {
-                throw new RuntimeException(type.getTypeName());
-            }
-
-        }
     }
 
     @Slf4j

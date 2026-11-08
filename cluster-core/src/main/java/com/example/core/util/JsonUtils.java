@@ -1,5 +1,6 @@
 package com.example.core.util;
 
+import com.example.core.model.GenericResponse;
 import com.example.core.model.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -27,6 +29,7 @@ public final class JsonUtils {
 
     static {
         PARSER = JsonMapper.builder()
+                .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
                 .defaultTimeZone(TimeZone.getDefault())
                 // 反序列化时, 当出现未知属性, 不失败
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
@@ -113,6 +116,15 @@ public final class JsonUtils {
         JavaType javaType = PARSER.getTypeFactory().constructType(type);
         Object value = PARSER.readValue(json, javaType);
         return value;
+    }
+
+    public static <T> GenericResponse<T> parseGenericResponse(String json, Type type) {
+        if (json == null) {
+            return null;
+        }
+        JavaType javaType = PARSER.getTypeFactory().constructType(type);
+        JavaType wrappedType = PARSER.getTypeFactory().constructParametricType(GenericResponse.class, javaType);
+        return PARSER.readValue(json, wrappedType);
     }
 
     public static void main(String[] args) {

@@ -1,6 +1,5 @@
 package com.example.consumer;
 
-import com.example.consumer.configuration.ClusterFeignClientConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.server.servlet.context.ServletComponentScan;
@@ -11,7 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @since 2026/10/16
  */
 @ServletComponentScan
-@EnableFeignClients(defaultConfiguration = ClusterFeignClientConfiguration.class)
+@EnableFeignClients
 @SpringBootApplication
 public class ClusterConsumerApplication {
 
