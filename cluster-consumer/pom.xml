@@ -112,14 +112,6 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
-        <!-- Source: https://mvnrepository.com/artifact/com.auth0/java-jwt -->
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>4.6.2</version>
-            <scope>compile</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.example</groupId>
             <artifactId>cluster-core</artifactId>
@@ -173,13 +165,6 @@
                 <configuration>
                     <mainClass>com.example.consumer.ClusterConsumerApplication</mainClass>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- 配置该插件将源码放入仓库 -->

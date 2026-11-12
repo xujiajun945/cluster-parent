@@ -4,6 +4,7 @@ import com.example.core.handler.LocalDateSerializer;
 import com.example.core.handler.LocalDateTimeSerializer;
 import com.example.provider.handler.LoginInterceptor;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,9 @@ import java.util.TimeZone;
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
+    @Autowired
+    private LoginInterceptor loginInterceptor;
+
     @Override
     public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
         WebMvcConfigurer.super.configureMessageConverters(builder);
@@ -43,7 +47,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
+        registry.addInterceptor(loginInterceptor)
                 .addPathPatterns("/demo/provider/**", "/mysql/**")
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .order(0);

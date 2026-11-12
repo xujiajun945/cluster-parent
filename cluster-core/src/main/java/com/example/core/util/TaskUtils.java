@@ -1,5 +1,6 @@
 package com.example.core.util;
 
+import com.example.core.config.ClusterAppContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Consumer;
@@ -11,6 +12,16 @@ import java.util.function.Consumer;
  */
 @Slf4j
 public class TaskUtils {
+
+    private static final ThreadLocal<ClusterAppContext> CONTEXT = new ThreadLocal<>();
+
+    public static void setContext(ClusterAppContext context) {
+        CONTEXT.set(context);
+    }
+
+    public static void removeContext() {
+        CONTEXT.remove();
+    }
 
     @FunctionalInterface
     public interface AsyncBizTask {
@@ -26,9 +37,13 @@ public class TaskUtils {
      * @return 包装好的Runnable，可以丢给线程池execute
      */
     public static Runnable wrap(String taskName, AsyncBizTask bizTask, Consumer<Exception> failCallback) {
+        ClusterAppContext context = CONTEXT.get();
         return () -> {
             try {
-                // 执行业务代码
+                // 设置登录上下文
+                if (context != null) {
+                    LoginUtils.setContext(context);
+                }
                 bizTask.execute();
             } catch (Exception e) {
                 // 统一：必打的日志，兜底，所有任务都会走这里
@@ -42,6 +57,9 @@ public class TaskUtils {
                         log.error("callback异常, 当前线程: {}", thread.getName(), exception);
                     }
                 }
+            } finally {
+                // 清理threadLocal资源
+                LoginUtils.removeContext();
             }
         };
     }

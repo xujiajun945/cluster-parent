@@ -118,13 +118,6 @@
             <artifactId>druid</artifactId>
         </dependency>
 
-        <!-- Source: https://mvnrepository.com/artifact/com.auth0/java-jwt -->
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>4.6.2</version>
-        </dependency>
-
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
@@ -180,13 +173,6 @@
                 <configuration>
                     <mainClass>com.example.provider.ClusterProviderApplication</mainClass>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- 配置该插件将源码放入仓库 -->

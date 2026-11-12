@@ -1,28 +1,20 @@
 package com.example.consumer.service.impl;
 
 import com.example.consumer.client.LoginClient;
-import com.example.consumer.client.UserClient;
 import com.example.consumer.service.LoginService;
-import com.example.consumer.util.JwtTokenUtils;
-import com.example.consumer.util.LoginUtils;
 import com.example.core.dto.LoginDTO;
 import com.example.core.dto.UserDTO;
-import com.example.core.dto.UserRememberMeDTO;
-import com.example.core.util.ClusterExecutor;
 import com.example.core.util.JsonUtils;
+import com.example.core.util.JwtTokenUtils;
+import com.example.core.util.LoginUtils;
 import com.example.core.util.TimeUtils;
-import com.example.core.util.TokenGeneratorUtil;
 import com.example.core.vo.UserVO;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,12 +28,6 @@ public class LoginServiceImpl implements LoginService {
 
     @Autowired
     private LoginClient loginClient;
-
-    @Autowired
-    private UserClient userClient;
-
-    @Autowired
-    private ClusterExecutor clusterExecutor;
 
     @Override
     public LoginDTO JWTLogin(UserVO userVO) {
@@ -57,12 +43,9 @@ public class LoginServiceImpl implements LoginService {
         loginDTO.setUserDTO(userDTO);
         loginDTO.setToken(token);
 
-        HttpServletRequest request = LoginUtils.getRequest();
-        HttpSession session = request.getSession();
-        long creationTime = session.getCreationTime();
-        LocalDateTime createTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(creationTime), ZoneId.systemDefault());
-        log.info("当前session生成时间： {}", createTime);
-        session.setAttribute("user", userDTO);
+        HttpSession session = LoginUtils.getSession();
+        log.info("当前session生成时间： {}", TimeUtils.parse(session.getCreationTime()));
+        LoginUtils.setUserToSession(userDTO);
         session.setMaxInactiveInterval(60 * 60 * 2);
         return loginDTO;
     }
@@ -72,14 +55,12 @@ public class LoginServiceImpl implements LoginService {
         LoginDTO loginDTO = new LoginDTO();
 
         HttpSession session = LoginUtils.getSession();
-        long creationTime = session.getCreationTime();
-        LocalDateTime createTime = TimeUtils.parse(creationTime);
-        log.info("当前session生成时间： {}", createTime);
+        log.info("当前session生成时间： {}", TimeUtils.parse(session.getCreationTime()));
 
-        Object user = session.getAttribute("user");
-        if (null != user && null != ((UserDTO) user).getId()) {
-            log.info("用户已经登录过了！{}", user);
-            loginDTO.setUserDTO((UserDTO) user);
+        UserDTO userFromSession = LoginUtils.getUserFromSession(session);
+        if (null != userFromSession && null != userFromSession.getId()) {
+            log.info("用户已经登录过了！{}", userFromSession);
+            loginDTO.setUserDTO(userFromSession);
             return loginDTO;
         }
 
@@ -87,25 +68,9 @@ public class LoginServiceImpl implements LoginService {
         if (userDTO == null || userDTO.getId() == null || userDTO.getId() <= 0) {
             throw new RuntimeException("登录失败！");
         }
-        // 保存用户rememberMe
-        Long userId = userDTO.getId();
-        clusterExecutor.execute("saveUserRememberMe", () -> {
-            UserRememberMeDTO dto = new UserRememberMeDTO();
-            dto.setUserId(userId);
-            String series = TokenGeneratorUtil.generateSeries();
-            String token = TokenGeneratorUtil.generateToken(series);
-            dto.setSeries(series);
-            dto.setToken(token);
-            userClient.addUserRememberMe(dto);
-        }, e -> {
-            log.info("保存用户rememberMe失败，写入schedule任务，userId：{}", userId);
-            // 写入schedule任务 todo xujiajun 2026/11/10
-        });
-
-        session.setAttribute("user", userDTO);
+        LoginUtils.setUserToSession(userDTO);
         session.setMaxInactiveInterval(60 * 60 * 2);
         loginDTO.setUserDTO(userDTO);
-        // todo xujiajun 生成remember me cookie并下发
         return loginDTO;
     }
 

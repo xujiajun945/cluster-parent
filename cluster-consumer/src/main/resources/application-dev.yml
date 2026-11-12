@@ -83,7 +83,8 @@ cluster-consumer:
     maxInactiveInterval: 600
   remember-me:
     cookieName: remember-me-dev
-    maxAge: 7 * 24 * 60 * 60
+    # cookie失效时间（单位：s）604800: 7天
+    maxAge: 604800
     path: /
     domain: localhost
     # HTTPS环境才发送

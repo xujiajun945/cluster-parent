@@ -32,6 +32,11 @@ public class UserRememberMe implements Serializable {
     private String token;
 
     /**
+     * secret
+     */
+    private String secret;
+
+    /**
      * User ID
      */
     private Long userId;

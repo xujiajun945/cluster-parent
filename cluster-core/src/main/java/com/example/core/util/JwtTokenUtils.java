@@ -1,4 +1,4 @@
-package com.example.consumer.util;
+package com.example.core.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -74,7 +74,7 @@ public final class JwtTokenUtils {
      *
      * @param token JWTToken
      * @return 自定义内容
-     * @throws com.auth0.jwt.exceptions.JWTVerificationException 校验失败抛出异常（RunTimeException）
+     * @throws com.auth0.jwt.exceptions.TokenExpiredException 校验失败抛出异常（RunTimeException）
      */
     public static String verifyToken(String token) {
         return JWT.require(Algorithm.HMAC256(SECRET))

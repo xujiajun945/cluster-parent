@@ -3,8 +3,7 @@ package com.example.consumer.client;
 import com.example.consumer.configuration.ClusterFeignClientConfiguration;
 import com.example.core.dto.UserRememberMeDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户客户端
@@ -23,4 +22,10 @@ public interface UserClient {
      */
     @PostMapping(value = "/user_remember_me")
     Integer addUserRememberMe(@RequestBody UserRememberMeDTO userRememberMeDTO);
+
+    @GetMapping(value = "/user_remember_me/series")
+    UserRememberMeDTO getUserRememberMeBySeries(@RequestParam("series") String series);
+
+    @PutMapping(value = "/user_remember_me/refresh")
+    String refreshUserRememberMe(@RequestParam("series") String series);
 }

@@ -19,4 +19,5 @@ public class UserRememberMeDTO implements Serializable {
     private Long userId;
     private String series;
     private String token;
+    private String secret;
 }

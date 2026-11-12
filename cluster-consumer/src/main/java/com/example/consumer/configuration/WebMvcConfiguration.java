@@ -1,9 +1,11 @@
 package com.example.consumer.configuration;
 
+import com.example.consumer.handler.ClusterAppContextInterceptor;
 import com.example.consumer.handler.LoginInterceptor;
 import com.example.core.handler.LocalDateSerializer;
 import com.example.core.handler.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,12 @@ import java.util.TimeZone;
  */
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
+
+    @Autowired
+    private LoginInterceptor loginInterceptor;
+
+    @Autowired
+    private ClusterAppContextInterceptor clusterAppContextInterceptor;
 
     @Override
     public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
@@ -56,10 +64,14 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
+        registry.addInterceptor(loginInterceptor)
                 .addPathPatterns("/demo/consumer/**", "/mysql/**")
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .order(0);
+        registry.addInterceptor(clusterAppContextInterceptor)
+                .addPathPatterns("/demo/consumer/**", "/mysql/**")
+                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
+                .order(1);
         WebMvcConfigurer.super.addInterceptors(registry);
     }
 

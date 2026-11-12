@@ -29,6 +29,8 @@ public class ClusterExecutor {
     public void execute(String taskName, Runnable task, Consumer<Exception> failCallback) {
         Runnable wrap = TaskUtils.wrap(taskName, task::run, failCallback);
         executor.execute(wrap);
+        // 清理threadLocal资源
+        TaskUtils.removeContext();
     }
 
 }

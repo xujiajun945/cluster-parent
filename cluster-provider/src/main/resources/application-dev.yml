@@ -62,3 +62,13 @@ cluster-provider:
     sessionPrefix: 'session:'
     expirePrefix: 'expire:'
     maxInactiveInterval: 600
+  remember-me:
+    cookieName: remember-me-dev
+    # cookie失效时间（单位：s）604800: 7天
+    maxAge: 604800
+    path: /
+    domain: localhost
+    # HTTPS环境才发送
+    secure: false
+    # JS无法读取，防御XSS盗取cookie
+    httpOnly: true

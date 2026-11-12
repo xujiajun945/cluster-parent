@@ -15,6 +15,7 @@
         <module>cluster-consumer</module>
         <module>cluster-provider</module>
         <module>cluster-core</module>
+        <module>Cluster-Gateway</module>
     </modules>
 
     <profiles>
@@ -51,7 +52,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring.boot.version>4.1.1</spring.boot.version>
-        <spring.could.version>2025.1.3</spring.could.version>
+        <spring.cloud.version>2025.1.3</spring.cloud.version>
 
         <tomcat.version>11.0.25</tomcat.version>
         <jackson.version>3.1.2</jackson.version>
@@ -75,7 +76,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring.could.version}</version>
+                <version>${spring.cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -213,6 +214,13 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <!-- 配置该插件将源码放入仓库 -->
                 <plugin>
