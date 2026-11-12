@@ -19,9 +19,9 @@ import java.util.Map;
  */
 public class LoginUtils {
 
-    public static Integer getUserId() {
+    public static Long getUserId() {
         HttpServletRequest request = getRequest();
-        Integer userIdInAttribute = (Integer) request.getAttribute("userId");
+        Long userIdInAttribute = (Long) request.getAttribute("userId");
         if (userIdInAttribute != null) {
             return userIdInAttribute;
         }
@@ -30,7 +30,7 @@ public class LoginUtils {
         if (StringUtils.isNotEmpty(auth)) {
             String subject = JwtTokenUtils.verifyToken(auth);
             Map<String, Object> userJwtInfo = JsonUtils.parseMap(subject, HashMap.class, String.class, Object.class);
-            Integer userId = (Integer) userJwtInfo.get("userId");
+            Long userId = (Long) userJwtInfo.get("userId");
             if (null != userId) {
                 return userId;
             }

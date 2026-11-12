@@ -63,6 +63,13 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         WebMvcConfigurer.super.addInterceptors(registry);
     }
 
+//    @FilterRegistration(urlPatterns = "/consumer/login/normal", name = "loginFilter", order = 0)
+//    @Bean
+//    @ConditionalOnMissingBean(LoginFilter.class)
+//    public LoginFilter loginFilter() {
+//        return new LoginFilter();
+//    }
+
     @Bean
     @ConditionalOnMissingBean(JsonMapper.class)
     public JsonMapper jsonMapper() {

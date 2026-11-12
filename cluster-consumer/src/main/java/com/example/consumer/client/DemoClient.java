@@ -9,6 +9,6 @@ import org.springframework.cloud.openfeign.FeignClient;
  * @since 2026/10/16
  */
 @FeignClient(name = "${cluster.provider.cluster-provider}", path = "/demo/provider",
-        contextId = "DemoClient", configuration = ClusterFeignClientConfiguration.class)
+        contextId = "demoClient", configuration = ClusterFeignClientConfiguration.class)
 public interface DemoClient extends DemoProviderSupport {
 }

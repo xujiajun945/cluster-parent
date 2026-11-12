@@ -13,7 +13,7 @@ import java.util.List;
  * @since 2026/11/1
  */
 @FeignClient(value = "${cluster.provider.cluster-provider}", path = "/mysql",
-        contextId = "MysqlClient", configuration = ClusterFeignClientConfiguration.class)
+        contextId = "mysqlClient", configuration = ClusterFeignClientConfiguration.class)
 public interface MysqlClient {
 
     @GetMapping(value = "/show_databases")

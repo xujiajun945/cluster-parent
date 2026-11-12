@@ -81,3 +81,12 @@ cluster-consumer:
     sessionPrefix: 'session:'
     expirePrefix: 'expire:'
     maxInactiveInterval: 600
+  remember-me:
+    cookieName: remember-me-dev
+    maxAge: 7 * 24 * 60 * 60
+    path: /
+    domain: localhost
+    # HTTPS环境才发送
+    secure: false
+    # JS无法读取，防御XSS盗取cookie
+    httpOnly: true

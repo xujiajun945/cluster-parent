@@ -25,81 +25,85 @@ public final class TimeUtils {
         throw new RuntimeException("util class can not be init!");
     }
 
-    private DateTimeFormatter getFormatter(String pattern) {
+    private static DateTimeFormatter getFormatter(String pattern) {
         DateTimeFormatter formatter = CACHE.computeIfAbsent(pattern, DateTimeFormatter::ofPattern);
         return formatter;
     }
 
-    public String format(LocalDateTime time) {
+    public static String format(LocalDateTime time) {
         return format(time, DEFAULT_PARTTERN);
     }
 
-    public String format(LocalDateTime time, String pattern) {
+    public static String format(LocalDateTime time, String pattern) {
         return getFormatter(pattern).format(time);
     }
 
-    public String format(LocalDate time) {
+    public static String format(LocalDate time) {
         return format(time, DEFAULT_DATE_PARTTERN);
     }
 
-    public String format(LocalDate time, String pattern) {
+    public static String format(LocalDate time, String pattern) {
         return getFormatter(pattern).format(time);
     }
 
-    public String format(ZonedDateTime time) {
+    public static String format(ZonedDateTime time) {
         return format(time, DEFAULT_PARTTERN);
     }
 
-    public String format(ZonedDateTime time, String pattern) {
+    public static String format(ZonedDateTime time, String pattern) {
         return getFormatter(pattern).format(time);
     }
 
-    public String format(Instant time) {
+    public static String format(Instant time) {
         return format(time, DEFAULT_PARTTERN);
     }
 
-    public String format(Instant time, String pattern) {
+    public static String format(Instant time, String pattern) {
         ZonedDateTime zone = time.atZone(ZoneId.systemDefault());
         return getFormatter(pattern).format(zone);
     }
 
-    public String format(Long timestamp) {
+    public static String format(Long timestamp) {
         return format(timestamp, DEFAULT_PARTTERN);
     }
 
-    public String format(Long timestamp, String pattern) {
+    public static String format(Long timestamp, String pattern) {
         ZonedDateTime zonedDateTime = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault());
         return format(zonedDateTime, pattern);
     }
 
-    public String format(Duration duration) {
+    public static String format(Duration duration) {
         long millis = duration.toMillis();
         return format(millis);
     }
 
-    public String format(Duration duration, String pattern) {
+    public static String format(Duration duration, String pattern) {
         long millis = duration.toMillis();
         return format(millis, pattern);
     }
 
-    public String format(Date time) {
+    public static String format(Date time) {
         ZonedDateTime zonedDateTime = time.toInstant().atZone(ZoneId.systemDefault());
         return format(zonedDateTime);
     }
 
-    public String format(Date time, String pattern) {
+    public static String format(Date time, String pattern) {
         ZonedDateTime zonedDateTime = time.toInstant().atZone(ZoneId.systemDefault());
         return format(zonedDateTime, pattern);
     }
 
-    public LocalDateTime toLocalDateTime(Date date) {
+    public static LocalDateTime toLocalDateTime(Date date) {
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
-    public LocalDateTime parse(String timeStr, String pattern) {
+    public static LocalDateTime parse(String timeStr, String pattern) {
         DateTimeFormatter formatter = getFormatter(pattern);
         LocalDateTime localDateTime = LocalDateTime.parse(timeStr, formatter);
         return localDateTime;
+    }
+
+    public static LocalDateTime parse(long timestamp) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
     }
 
 }

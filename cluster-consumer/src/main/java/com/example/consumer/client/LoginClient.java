@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @since 2026/10/21
  */
 @FeignClient(value = "${cluster.provider.cluster-provider}", path = "/provider/login",
-        contextId = "LoginClient", configuration = {ClusterFeignClientConfiguration.class, LoginClientFeignConfiguration.class})
+        contextId = "loginClient", configuration = {ClusterFeignClientConfiguration.class, LoginClientFeignConfiguration.class})
 public interface LoginClient {
 
     @PostMapping

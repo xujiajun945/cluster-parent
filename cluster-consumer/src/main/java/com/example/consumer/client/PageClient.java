@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @since 2026/11/5
  */
 @FeignClient(name = "${cluster.provider.cluster-provider}", path = "/mysql",
-        contextId = "PageClient", configuration = ClusterFeignClientConfiguration.class)
+        contextId = "pageClient", configuration = ClusterFeignClientConfiguration.class)
 public interface PageClient {
 
     @GetMapping(value = "/employees")
