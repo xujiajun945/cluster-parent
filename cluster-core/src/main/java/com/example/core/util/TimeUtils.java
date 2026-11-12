@@ -106,4 +106,8 @@ public final class TimeUtils {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
     }
 
+    public static Instant parseInstant(String timeStr, String pattern) {
+        return parse(timeStr, pattern).atZone(ZoneId.systemDefault()).toInstant();
+    }
+
 }

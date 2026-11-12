@@ -1,6 +1,7 @@
 package com.example.consumer.client;
 
 import com.example.consumer.configuration.ClusterFeignClientConfiguration;
+import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -28,4 +29,10 @@ public interface UserClient {
 
     @PutMapping(value = "/user_remember_me/refresh")
     String refreshUserRememberMe(@RequestParam("series") String series);
+
+    @GetMapping(value = "/user_remember_me/user")
+    UserRememberMeDTO getUserRememberMeByUserId(@RequestParam("userId") Long userId);
+
+    @GetMapping(value = "/{userId}")
+    UserDTO getUserById(@PathVariable("userId") Long userId);
 }

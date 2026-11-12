@@ -1,6 +1,7 @@
 package com.example.consumer.handler;
 
 import com.example.consumer.client.UserClient;
+import com.example.consumer.configuration.ValkeySessionRepository;
 import com.example.core.config.RememberMeConfig;
 import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
@@ -30,6 +31,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Autowired
     private RememberMeConfig rememberMeConfig;
+
+    @Autowired
+    private ValkeySessionRepository sessionRepository;
 
     @Lazy
     @Autowired
@@ -76,7 +80,10 @@ public class LoginInterceptor implements HandlerInterceptor {
             throw new ClusterException("rememberMe token解密失败！");
         }
         request.setAttribute("userId", userRememberMe.getUserId());
-        // 设置需要刷新remember me token
+        // 需要查询userDTO，创建session并重新下发会话cookie
+        UserDTO userDTO = userClient.getUserById(userRememberMe.getUserId());
+        LoginUtils.setUserToSession(userDTO);
+        // 刷新remember me token
         try {
             String newToken = userClient.refreshUserRememberMe(series);
             log.info("刷新remember me token：{}", newToken);

@@ -76,24 +76,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             throw new ClusterException("rememberMe token解密失败！");
         }
         request.setAttribute("userId", userRememberMe.getUserId());
-        // 设置需要刷新remember me token
-        try {
-            String newToken = userService.refreshUserRememberMe(series);
-            log.info("刷新remember me token：{}", newToken);
-            String cookieValue = TokenGeneratorUtil.encodeCookieValue(series, newToken);
-            // 将请求带过来的remember me cookie的值更新 方便feign或者其他http调用透传
-            rememberMeCookie.setValue(cookieValue);
-            Cookie cookie = new Cookie(rememberMeConfig.getCookieName(), cookieValue);
-            cookie.setPath(rememberMeConfig.getPath());
-            cookie.setDomain(rememberMeConfig.getDomain());
-            cookie.setSecure(rememberMeConfig.isSecure());
-            cookie.setHttpOnly(rememberMeConfig.isHttpOnly());
-            cookie.setMaxAge(rememberMeConfig.getMaxAge());
-            response.addCookie(cookie);
-        } catch (Exception e) {
-            log.error("刷新remember me token异常：{}", e.getMessage());
-            // todo xujiajun 处理刷新remember me token异常
-        }
         return true;
     }
 

@@ -7,17 +7,11 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface UserRememberMeMapper {
 
-    int deleteByPrimaryKey(Long id);
-
-    int insert(UserRememberMe record);
-
     int insertSelective(UserRememberMe record);
 
-    UserRememberMe selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(UserRememberMe record);
-
-    UserRememberMe getBySeries(@Param("series") String series, @Param("deleted") boolean deleted);
+    UserRememberMe getActiveBySeries(@Param("series") String series);
 
     int deleteBySeries(@Param("series") String series);
+
+    UserRememberMe getActiveByUserId(@Param("userId") Long userId);
 }

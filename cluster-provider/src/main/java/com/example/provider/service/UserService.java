@@ -1,5 +1,6 @@
 package com.example.provider.service;
 
+import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
 
 /**
@@ -14,4 +15,8 @@ public interface UserService {
     UserRememberMeDTO getUserRememberMeBySeries(String series);
 
     String refreshUserRememberMe(String series);
+
+    UserRememberMeDTO getUserRememberMeByUserId(Long userId);
+
+    UserDTO getUserById(Long userId);
 }

@@ -124,6 +124,14 @@ public class LoginUtils {
         return null;
     }
 
+    public static String getAuth() {
+        ClusterAppContext context = contextHolder.get();
+        if (context != null) {
+            return context.getAuth();
+        }
+        return getRequest().getHeader("auth");
+    }
+
     public static String getHeaderCookies() {
         ClusterAppContext context = contextHolder.get();
         if (context != null) {

@@ -18,57 +18,36 @@
         id, series, token, secret, user_id, created_time, updated_time, deleted_time, is_deleted
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-        SELECT
-            <include refid="Base_Column_List"/>
-        FROM
-            demo01.user_remember_me
-        WHERE
-            id = #{id,jdbcType=BIGINT}
-    </select>
-
-    <select id="getBySeries" resultMap="BaseResultMap">
+    <select id="getActiveBySeries" resultMap="BaseResultMap">
         SELECT
             <include refid="Base_Column_List"/>
         FROM
             demo01.user_remember_me
         WHERE
             series = #{series,jdbcType=VARCHAR}
-            AND is_deleted = #{deleted,jdbcType=TINYINT}
-        Limit 1
+            AND is_deleted = 0
     </select>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-        DELETE FROM
+    <select id="getActiveByUserId" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
             demo01.user_remember_me
         WHERE
-            id = #{id,jdbcType=BIGINT}
-    </delete>
+            user_id = #{userId}
+            AND is_deleted = 0
+    </select>
 
     <update id="deleteBySeries" parameterType="java.lang.String">
         UPDATE
             demo01.user_remember_me
         SET
-            is_deleted = 1
+            is_deleted = 1,
+            deleted_time = CURRENT_TIMESTAMP()
         WHERE
             series = #{series,jdbcType=VARCHAR}
             AND is_deleted = 0
     </update>
-
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.core.model.UserRememberMe"
-            useGeneratedKeys="true">
-        INSERT INTO
-            demo01.user_remember_me
-            <trim prefix="(" suffix=")" suffixOverrides=",">
-                series, token, secret, user_id, created_time, updated_time, deleted_time, is_deleted
-            </trim>
-        VALUES
-            <trim prefix="(" suffix=")" suffixOverrides=",">
-                #{series,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR}, #{secret,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT},
-                #{createdTime,jdbcType=TIMESTAMP}, #{updatedTime,jdbcType=TIMESTAMP}, #{deletedTime,jdbcType=TIMESTAMP},
-                #{isDeleted,jdbcType=TINYINT}
-            </trim>
-    </insert>
 
     <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.core.model.UserRememberMe"
             useGeneratedKeys="true">
@@ -128,37 +107,5 @@
             </if>
         </trim>
     </insert>
-
-    <update id="updateByPrimaryKeySelective" parameterType="com.example.core.model.UserRememberMe">
-        UPDATE
-            demo01.user_remember_me
-        <set>
-            <if test="series != null">
-                series = #{series,jdbcType=VARCHAR},
-            </if>
-            <if test="token != null">
-                token = #{token,jdbcType=VARCHAR},
-            </if>
-            <if test="secret != null">
-                secret = #{secret,jdbcType=VARCHAR},
-            </if>
-            <if test="userId != null">
-                user_id = #{userId,jdbcType=BIGINT},
-            </if>
-            <if test="createdTime != null">
-                created_time = #{createdTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updatedTime != null">
-                updated_time = #{updatedTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="deletedTime != null">
-                deleted_time = #{deletedTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="isDeleted != null">
-                is_deleted = #{isDeleted,jdbcType=TINYINT},
-            </if>
-        </set>
-        WHERE id = #{id,jdbcType=BIGINT}
-    </update>
 
 </mapper>

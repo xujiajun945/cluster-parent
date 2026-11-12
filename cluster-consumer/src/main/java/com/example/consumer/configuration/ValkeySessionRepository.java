@@ -1,12 +1,13 @@
 package com.example.consumer.configuration;
 
+import com.example.core.util.TimeUtils;
 import io.valkey.springframework.data.valkey.core.ValkeyTemplate;
 import org.jspecify.annotations.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.SessionRepository;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class ValkeySessionRepository implements SessionRepository<MapSession> {
 
     private Duration maxInactiveInterval;
 
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public ValkeySessionRepository(ValkeyTemplate<String, Object> valkeyTemplate, ValkeySessionConfig valkeySessionConfig) {
         this.valkeyTemplate = valkeyTemplate;
@@ -50,17 +51,20 @@ public class ValkeySessionRepository implements SessionRepository<MapSession> {
         MapSession session = new MapSession(sessionId);
 
         String creationTimeStr = String.valueOf(entries.get("creationTime"));
-        Instant creationTime = LocalDateTime.parse(creationTimeStr, dateTimeFormatter).atZone(ZoneId.systemDefault()).toInstant();
+        Instant creationTime = TimeUtils.parseInstant(creationTimeStr, DATE_TIME_FORMAT);
         session.setCreationTime(creationTime);
         entries.remove("creationTime");
+
         Long interval = Long.valueOf(String.valueOf(entries.get("maxInactiveInterval")));
         Duration maxInactiveInterval = Duration.ofSeconds(interval);
         session.setMaxInactiveInterval(maxInactiveInterval);
         entries.remove("maxInactiveInterval");
+
         String lastAccessedTimeStr = String.valueOf(entries.get("lastAccessedTime"));
-        Instant lastAccessedTime = LocalDateTime.parse(lastAccessedTimeStr, dateTimeFormatter).atZone(ZoneId.systemDefault()).toInstant();
+        Instant lastAccessedTime = TimeUtils.parseInstant(lastAccessedTimeStr, DATE_TIME_FORMAT);
         session.setLastAccessedTime(lastAccessedTime);
         entries.remove("lastAccessedTime");
+
         if (session.isExpired()) {
             deleteById(sessionId);
             return null;
@@ -77,17 +81,16 @@ public class ValkeySessionRepository implements SessionRepository<MapSession> {
         String key = getSessionKey(session.getId());
 
         Map<String, Object> entries = new HashMap<>();
-        Instant creationTime = session.getCreationTime();
-        ZonedDateTime zonedDateTime = creationTime.atZone(ZoneId.systemDefault());
-        String creationTimeStr = dateTimeFormatter.format(zonedDateTime);
+        String creationTimeStr = TimeUtils.format(session.getCreationTime(), DATE_TIME_FORMAT);
         entries.put("creationTime", creationTimeStr);
+
         Duration maxInactiveInterval = session.getMaxInactiveInterval();
         Long seconds = maxInactiveInterval.toSeconds();
         entries.put("maxInactiveInterval", seconds);
-        Instant lastAccessedTime = session.getLastAccessedTime();
-        ZonedDateTime dateTime = lastAccessedTime.atZone(ZoneId.systemDefault());
-        String lastAccessedTimeStr = dateTimeFormatter.format(dateTime);
+
+        String lastAccessedTimeStr = TimeUtils.format(session.getLastAccessedTime(), DATE_TIME_FORMAT);
         entries.put("lastAccessedTime", lastAccessedTimeStr);
+
         setSessionAttribute(session, entries);
 
         this.valkeyTemplate.<String, Object>opsForHash().putAll(key, entries);

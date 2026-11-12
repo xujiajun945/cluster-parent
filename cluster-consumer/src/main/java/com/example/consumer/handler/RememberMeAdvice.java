@@ -1,6 +1,7 @@
 package com.example.consumer.handler;
 
 import com.example.consumer.client.UserClient;
+import com.example.consumer.configuration.ValkeySessionRepository;
 import com.example.core.config.RememberMeConfig;
 import com.example.core.dto.UserRememberMeDTO;
 import com.example.core.util.ClusterExecutor;
@@ -28,16 +29,24 @@ public class RememberMeAdvice {
     @Autowired
     private RememberMeConfig config;
 
+    private ValkeySessionRepository sessionRepository;
+
     @Pointcut(value = "execution(* com.example.consumer.service.impl.LoginServiceImpl.normalLogin(..))")
     public void pointcut() {}
 
     @AfterReturning("pointcut()")
     public void afterReturning() {
+        // 查询当前userRememberMe是否存在，只有不存在才会写一条
+        Long userId = LoginUtils.getUserId();
+        UserRememberMeDTO userRememberMeDTO = userClient.getUserRememberMeByUserId(userId);
+        if (userRememberMeDTO != null) {
+            log.info("已经存在userRememberMe，不再重复写！");
+            return;
+        }
         log.info("Adding remember me cookie");
         String series = TokenGeneratorUtil.generateSeries();
         String token = TokenGeneratorUtil.generateToken(series);
         // 保存用户rememberMe
-        Long userId = LoginUtils.getUserId();
         clusterExecutor.execute("saveUserRememberMe", () -> {
             UserRememberMeDTO dto = new UserRememberMeDTO();
             dto.setUserId(userId);

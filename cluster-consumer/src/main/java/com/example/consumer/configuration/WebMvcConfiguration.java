@@ -69,7 +69,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .order(0);
         registry.addInterceptor(clusterAppContextInterceptor)
-                .addPathPatterns("/demo/consumer/**", "/mysql/**")
+                .addPathPatterns("/**")
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .order(1);
         WebMvcConfigurer.super.addInterceptors(registry);

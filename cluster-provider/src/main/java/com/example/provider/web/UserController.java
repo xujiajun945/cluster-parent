@@ -1,5 +1,6 @@
 package com.example.provider.web;
 
+import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
 import com.example.core.model.ResponseData;
 import com.example.provider.service.UserService;
@@ -34,5 +35,17 @@ public class UserController {
     public ResponseData refreshUserRememberMe(@RequestParam("series") String series) {
         String newToken = userService.refreshUserRememberMe(series);
         return new ResponseData(newToken);
+    }
+
+    @GetMapping(value = "/user_remember_me/user")
+    public ResponseData getUserRememberMeByUserId(@RequestParam("userId") Long userId) {
+        UserRememberMeDTO dto = userService.getUserRememberMeByUserId(userId);
+        return new ResponseData(dto);
+    }
+
+    @GetMapping(value = "/{userId}")
+    public ResponseData getUserById(@PathVariable("userId") Long userId) {
+        UserDTO userDTO = userService.getUserById(userId);
+        return new ResponseData(userDTO);
     }
 }
