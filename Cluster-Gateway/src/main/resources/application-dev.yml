@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cluster-gateway-dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.184.129:8848
+        username: nacos
+        password: xujiajun945
+        namespace: public
+        refresh-enabled: true
+      discovery:
+        server-addr: 192.168.184.129:8848
+        group: demo01
+  config:
+    import[0]: nacos:demo?group=default
