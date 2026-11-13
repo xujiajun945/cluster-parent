@@ -1,9 +1,9 @@
 package com.example.consumer.listener;
 
-import com.alibaba.nacos.api.annotation.NacosInjected;
-import com.alibaba.nacos.api.config.ConfigService;
-import com.alibaba.nacos.api.config.annotation.NacosConfigListener;
+import com.alibaba.cloud.nacos.NacosConfigManager;
+import com.alibaba.cloud.nacos.annotation.NacosConfigListener;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -16,28 +16,28 @@ import java.lang.reflect.Method;
 @Slf4j
 public class DemoNacosConfigListener {
 
-    @NacosInjected
-    private ConfigService configService;
+    @Autowired
+    private NacosConfigManager configManager;
 
-    @NacosConfigListener(dataId = "demo")
+    @NacosConfigListener(dataId = "application-dev.yml", group = "cluster-provider")
     public void demoConfigListener(String config) throws NoSuchMethodException {
         Class<DemoNacosConfigListener> demoNacosConfigListenerClass = DemoNacosConfigListener.class;
         Method demoConfigListener = demoNacosConfigListenerClass.getDeclaredMethod("demoConfigListener", String.class);
         NacosConfigListener declaredAnnotation = demoConfigListener.getDeclaredAnnotation(NacosConfigListener.class);
         String dataId = declaredAnnotation.dataId();
-        String groupId = declaredAnnotation.groupId();
-        String serverStatus = configService.getServerStatus();
-        log.info("nacos config change: serverStatus: {} \n dataId: {} \n groupId: {} \n config: {}", serverStatus, dataId, groupId, config);
+        String groupId = declaredAnnotation.group();
+        String serverStatus = configManager.getConfigService().getServerStatus();
+        log.info("nacos config change: dataId: {} \n groupId: {} \n config: {}", dataId, groupId, config);
     }
 
-    @NacosConfigListener(dataId = "demo", groupId = "default")
+    @NacosConfigListener(dataId = "application-dev.yml", group = "cluster-consumer")
     public void demoConfigListenerGroup(String config) throws NoSuchMethodException {
         Class<DemoNacosConfigListener> demoNacosConfigListenerClass = DemoNacosConfigListener.class;
         Method demoConfigListener = demoNacosConfigListenerClass.getDeclaredMethod("demoConfigListenerGroup", String.class);
         NacosConfigListener declaredAnnotation = demoConfigListener.getDeclaredAnnotation(NacosConfigListener.class);
         String dataId = declaredAnnotation.dataId();
-        String groupId = declaredAnnotation.groupId();
-        String serverStatus = configService.getServerStatus();
-        log.info("nacos config change: serverStatus: {} \n dataId: {} \n groupId: {} \n config: {}", serverStatus, dataId, groupId, config);
+        String groupId = declaredAnnotation.group();
+        String serverStatus = configManager.getConfigService().getServerStatus();
+        log.info("nacos config change: dataId: {} \n groupId: {} \n config: {}", dataId, groupId, config);
     }
 }

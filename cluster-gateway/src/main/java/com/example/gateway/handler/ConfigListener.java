@@ -1,6 +1,8 @@
 package com.example.gateway.handler;
 
-import com.alibaba.nacos.api.config.annotation.NacosConfigListener;
+import com.alibaba.cloud.nacos.NacosConfigManager;
+import com.alibaba.cloud.nacos.annotation.NacosConfigListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -11,7 +13,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ConfigListener {
 
-    @NacosConfigListener(dataId = "routeconfig", groupId = "DEFAULT_GROUP")
+    @Autowired
+    private NacosConfigManager configManager;
+
+    @NacosConfigListener(dataId = "application-dev.yml", group = "cluster-gateway")
     public void rate(String rateConfig) {
         System.out.println("receiveRateConfig:"+rateConfig);
     }
