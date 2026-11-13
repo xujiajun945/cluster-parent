@@ -18,10 +18,10 @@ import org.springframework.core.env.Environment;
 public class ClusterRoundRobinLoadBalancerClient {
 
         /**
-         * 负载均衡策略：随机
+         * 负载均衡策略：轮询（Round Robin）
          */
         @Bean
-        public ReactorLoadBalancer<ServiceInstance> randomLoadBalancer(Environment env, LoadBalancerClientFactory factory) {
+        public ReactorLoadBalancer<ServiceInstance> roundRobinLoadBalancer(Environment env, LoadBalancerClientFactory factory) {
             String name = env.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);
             ObjectProvider<ServiceInstanceListSupplier> lazyProvider = factory.getLazyProvider(name, ServiceInstanceListSupplier.class);
             return new RoundRobinLoadBalancer(lazyProvider, name);

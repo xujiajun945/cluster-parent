@@ -15,5 +15,7 @@ spring:
         password: xujiajun945
         namespace: dev
         group: v1
+        cluster-name: wh
   config:
-    import[0]: nacos:application-dev.yml?group=cluster-provider
+    import:
+      - nacos:application-dev.yml?group=cluster-provider

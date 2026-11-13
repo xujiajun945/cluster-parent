@@ -5,17 +5,19 @@ spring:
     nacos:
       config:
         server-addr: 192.168.184.129:8848
-        username: nacos
-        password: xujiajun945
+        username: clusterUserDev
+        password: 940404
         refresh-enabled: true
         namespace: dev
       discovery:
         server-addr: 192.168.184.129:8848
-        username: nacos
-        password: xujiajun945
-        # 服务分组
+        username: clusterUserDev
+        password: 940404
         group: v1
         namespace: dev
+        cluster-name: wh
   config:
     # nacos:[dataId]?group=[group]
-    import[0]: nacos:application-dev.yml?group=cluster-consumer
+    import:
+      - nacos:application-dev.yml?group=cluster-consumer
+      - optional:nacos:demo01?group=cluster-consumer

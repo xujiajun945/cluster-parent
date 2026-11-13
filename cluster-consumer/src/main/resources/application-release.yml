@@ -16,6 +16,8 @@ spring:
         # 服务分组
         group: v1
         namespace: prod
+        cluster-name: wh
   config:
     # nacos:[dataId]?group=[group]
-    import[0]: nacos:application-release.yml?group=cluster-consumer
+    import:
+      - nacos:application-release.yml?group=cluster-consumer

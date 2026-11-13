@@ -15,7 +15,7 @@ import org.springframework.core.env.Environment;
  * @author xujiajun
  * @since 2026/10/28
  */
-public class clusterRandomLoadBalancerClient {
+public class ClusterRandomLoadBalancerClient {
 
         /**
          * 负载均衡策略：随机

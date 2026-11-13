@@ -1,6 +1,6 @@
 package com.example.provider.configuration;
 
-import com.example.core.handler.clusterRandomLoadBalancerClient;
+import com.example.core.handler.ClusterRandomLoadBalancerClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Configuration
 @LoadBalancerClients(
-        @LoadBalancerClient(name = "${cluster.provider.cluster-consumer}", configuration = clusterRandomLoadBalancerClient.class)
+        @LoadBalancerClient(name = "${cluster.provider.cluster-consumer}", configuration = ClusterRandomLoadBalancerClient.class)
 )
 @EnableDiscoveryClient
 public class DemoNacosConfiguration {
