@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: cluster-gateway
+  cloud:
+    nacos:
+      config:
+        server-addr: 172.22.98.193:8848
+        username: nacos
+        password: xujiajun945
+        namespace: prod
+        refresh-enabled: true
+      discovery:
+        server-addr: 172.22.98.193:8848
+        username: nacos
+        password: xujiajun945
+        namespace: prod
+        group: v1
+  config:
+    import[0]: nacos:application-release.yml?group=cluster-gateway
