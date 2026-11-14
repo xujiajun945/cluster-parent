@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SLB 网关链路架构图</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='4' width='26' height='6' fill='%231E4E8C'/%3E%3Crect x='6' y='13' width='20' height='6' fill='%23BC4A1F'/%3E%3Crect x='9' y='22' width='14' height='6' fill='%23176A5F'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#EDF1F5;
+  --paper:#FFFFFF;
+  --ink:#131A21;
+  --sub:#586677;
+  --faint:#7C8A9A;
+  --line:#D3DBE4;
+  --line-2:#BFCAD6;
+  --blue:#1E4E8C;
+  --blue-soft:#E7EEF7;
+  --accent:#BC4A1F;
+  --accent-soft:#FBEDE6;
+  --teal:#176A5F;
+  --amber:#7A5B12;
+  --mono:ui-monospace,"Cascadia Mono","Consolas","SF Mono",monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  padding:38px 20px 64px;
+  background:
+    radial-gradient(rgba(19,26,33,.055) 1px, transparent 1px) 0 0/22px 22px,
+    var(--bg);
+  color:var(--ink);
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC",sans-serif;
+  font-size:15px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1060px;margin:0 auto}
+
+/* ---------- 页头 ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:6px}
+h1{
+  margin:0;
+  font-size:clamp(24px,4.2vw,34px);
+  font-weight:700;
+  letter-spacing:-.02em;
+  line-height:1.25;
+}
+.sub{
+  margin:10px 0 0;
+  color:var(--sub);
+  font-size:14.5px;
+  max-width:62ch;
+}
+.hrule{height:1px;background:var(--line-2);margin:22px 0 26px}
+
+/* ---------- 分层图 ---------- */
+.diagram{
+  background:var(--paper);
+  border:1px solid var(--line);
+  padding:26px 22px 22px;
+}
+.layer{
+  display:grid;
+  grid-template-columns:118px minmax(0,1fr);
+  gap:14px;
+  align-items:start;
+}
+.layer-meta{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  padding-top:2px;
+}
+.lv{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  color:var(--faint);
+  text-transform:uppercase;
+}
+.ln{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.4}
+.lm{font-size:11.5px;color:var(--faint);line-height:1.5}
+
+.nodes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  min-width:0;
+}
+.node{
+  flex:1 1 190px;
+  min-width:0;
+  background:#FBFCFD;
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:11px 13px 12px;
+}
+.node-name{
+  font-size:14px;
+  font-weight:650;
+  letter-spacing:-.01em;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.node-meta{
+  margin-top:4px;
+  font-size:12px;
+  color:var(--sub);
+  line-height:1.6;
+  word-break:break-word;
+}
+.node-meta code{
+  font-family:var(--mono);
+  font-size:11.5px;
+  background:#EEF2F6;
+  padding:1px 4px;
+  border-radius:2px;
+  color:var(--blue);
+}
+.tag{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  padding:2px 5px;
+  border-radius:2px;
+  border:1px solid currentColor;
+  line-height:1.3;
+  font-weight:600;
+}
+.tag-new{color:var(--accent);background:var(--accent-soft)}
+.tag-opt{color:var(--faint);background:#F2F4F7}
+
+/* 高亮层（SLB） */
+.layer.hl .nodes .node{
+  border-color:#E0B9A8;
+  background:var(--accent-soft);
+}
+.layer.hl .node-name{color:#8E3612}
+.layer.hl .node-meta{color:#7E4A30}
+.layer.hl .node-meta code{background:#F6E0D5;color:#8E3612}
+.layer.hl .ln{color:#8E3612}
+
+/* 控制面 */
+.plane{
+  margin-top:22px;
+  border:1px dashed var(--line-2);
+  background:#F6F8FA;
+  padding:14px 16px 16px;
+}
+.plane-h{
+  font-size:12px;
+  color:var(--faint);
+  letter-spacing:.02em;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.plane-h b{color:var(--teal);font-weight:650;font-size:13px}
+.plane .nodes .node{border-style:dashed;background:transparent;flex:1 1 210px}
+.plane .node-name{font-size:13px;color:var(--teal)}
+
+/* 箭头 */
+.flow{
+  display:grid;
+  grid-template-columns:118px minmax(0,1fr);
+  gap:14px;
+  margin:0;
+}
+.flow-inner{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 0;
+  min-width:0;
+}
+.num{
+  flex:0 0 auto;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:var(--blue);
+  color:#fff;
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:700;
+  display:grid;place-items:center;
+  line-height:1;
+}
+.num.acc{background:var(--accent)}
+.arrow-v{
+  flex:0 0 auto;
+  width:12px;height:30px;
+}
+.flow-txt{
+  font-size:12.5px;
+  color:var(--sub);
+  line-height:1.5;
+  min-width:0;
+}
+.flow-txt b{font-weight:600;color:var(--ink)}
+.flow-txt code{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--blue);
+}
+
+/* ---------- 图例 ---------- */
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 20px;
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  font-size:12px;
+  color:var(--sub);
+}
+.lg{display:flex;align-items:center;gap:7px}
+.sw{width:22px;height:11px;border:1px solid var(--line);border-radius:2px;flex:0 0 auto}
+.sw-a{background:var(--accent-soft);border-color:#E0B9A8}
+.sw-b{background:#FBFCFD}
+.sw-c{background:transparent;border-style:dashed;border-color:var(--line-2)}
+
+/* ---------- 说明 ---------- */
+.notes{margin-top:38px}
+.notes h2{
+  font-size:17px;
+  font-weight:700;
+  margin:0 0 16px;
+  letter-spacing:-.01em;
+}
+.note{
+  padding:14px 0 15px;
+  border-top:1px solid var(--line);
+}
+.note:last-child{border-bottom:1px solid var(--line)}
+.note-h{
+  font-size:14px;
+  font-weight:650;
+  margin:0 0 5px;
+  display:flex;
+  gap:9px;
+  align-items:baseline;
+}
+.note-h span{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--faint);
+  font-weight:600;
+  letter-spacing:.06em;
+}
+.note p{
+  margin:0;
+  font-size:13.5px;
+  color:var(--sub);
+  max-width:78ch;
+}
+.note p b{color:var(--ink);font-weight:600}
+.note p code{
+  font-family:var(--mono);
+  font-size:12px;
+  background:#E9EEF3;
+  padding:1px 4px;
+  border-radius:2px;
+  color:var(--blue);
+}
+
+.foot{
+  margin-top:34px;
+  font-size:12px;
+  color:var(--faint);
+  line-height:1.7;
+}
+
+/* ---------- 窄屏 ---------- */
+@media (max-width:700px){
+  body{padding:26px 14px 48px}
+  .diagram{padding:18px 14px 18px}
+  .layer,.flow{grid-template-columns:1fr;gap:8px}
+  .layer-meta{flex-direction:row;align-items:baseline;gap:8px;padding-top:0}
+  .ln{font-size:13px}
+  .lm{font-size:11px}
+  .nodes{gap:8px}
+  .node{flex:1 1 100%}
+  .flow-inner{padding:4px 0 12px}
+  .arrow-v{height:22px}
+  .flow-txt{font-size:12px}
+  .notes{margin-top:30px}
+}
+@media (max-width:420px){
+  .node{padding:9px 11px 10px}
+  .node-name{font-size:13px}
+}
+@media print{
+  body{background:#fff;padding:0}
+  .diagram{border-color:#ccc}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div>
+      <h1>SLB 接入后的完整链路</h1>
+      <p class="sub">前后端分离 · 静态资源在 Nginx · 网关与微服务注册 Nacos · 网关按 <code style="font-family:var(--mono);font-size:12.5px">lb://</code> 负载均衡</p>
+    </div>
+  </div>
+  <div class="hrule"></div>
+
+  <div class="diagram">
+
+    <!-- L0 -->
+    <div class="layer">
+      <div class="layer-meta">
+        <span class="lv">L0</span>
+        <span class="ln">终端</span>
+        <span class="lm">公网用户</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">浏览器 / H5</span>
+          <div class="node-meta">桌面端、移动端 Web，加载 HTML / JS / CSS / 图片</div>
+        </div>
+        <div class="node">
+          <span class="node-name">App / 小程序</span>
+          <div class="node-meta">走同一套 API 域名，不需要额外入口</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow"><div></div><div class="flow-inner">
+      <span class="num">1</span>
+      <svg class="arrow-v" viewBox="0 0 12 30" fill="none" aria-hidden="true"><path d="M6 0v23" stroke="#9BAABA" stroke-width="1.6"/><path d="M1.5 19.5L6 25l4.5-5.5" stroke="#9BAABA" stroke-width="1.6" fill="none"/></svg>
+      <span class="flow-txt"><b>DNS 解析到公网域名</b>　静态资源走 CDN（若启用），API 请求直接落 VIP</span>
+    </div></div>
+
+    <!-- L1 -->
+    <div class="layer">
+      <div class="layer-meta">
+        <span class="lv">L1</span>
+        <span class="ln">边缘加速</span>
+        <span class="lm">可选</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">CDN <span class="tag tag-opt">OPTIONAL</span></span>
+          <div class="node-meta">只缓存静态资源（JS / CSS / 图片 / 字体），<b>不代理 API</b>；回源地址填 SLB 或源站 Nginx</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow"><div></div><div class="flow-inner">
+      <span class="num acc">2</span>
+      <svg class="arrow-v" viewBox="0 0 12 30" fill="none" aria-hidden="true"><path d="M6 0v23" stroke="#BC4A1F" stroke-width="1.6"/><path d="M1.5 19.5L6 25l4.5-5.5" stroke="#BC4A1F" stroke-width="1.6" fill="none"/></svg>
+      <span class="flow-txt"><b>HTTPS :443 打到 SLB 虚拟服务 VIP</b>　SLB 在最外侧，是唯一的公网暴露点</span>
+    </div></div>
+
+    <!-- L2 SLB -->
+    <div class="layer hl">
+      <div class="layer-meta">
+        <span class="lv">L2</span>
+        <span class="ln">公网入口</span>
+        <span class="lm">承载 VIP</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">SLB 实例 A <span class="tag tag-new">新增</span></span>
+          <div class="node-meta">多可用区双活，<code>443</code> 监听；TLS 卸载后内网转 <code>HTTP :80</code></div>
+        </div>
+        <div class="node">
+          <span class="node-name">SLB 实例 B</span>
+          <div class="node-meta">与 A 同属一个虚拟服务组，后端服务器组指向 Nginx 集群</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow"><div></div><div class="flow-inner">
+      <span class="num acc">3</span>
+      <svg class="arrow-v" viewBox="0 0 12 30" fill="none" aria-hidden="true"><path d="M6 0v23" stroke="#BC4A1F" stroke-width="1.6"/><path d="M1.5 19.5L6 25l4.5-5.5" stroke="#BC4A1F" stroke-width="1.6" fill="none"/></svg>
+      <span class="flow-txt"><b>四层转发到 Nginx 集群</b>　按权重轮询，带健康检查；Nginx 只在内网，不暴露公网</span>
+    </div></div>
+
+    <!-- L3 Nginx -->
+    <div class="layer">
+      <div class="layer-meta">
+        <span class="lv">L3</span>
+        <span class="ln">七层路由</span>
+        <span class="lm">静态 + 反代</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">Nginx-A</span>
+          <div class="node-meta"><code>/</code> 命中本地 <code>root</code> 直接返回静态文件；<code>/api/*</code> <code>proxy_pass</code> 给网关 upstream</div>
+        </div>
+        <div class="node">
+          <span class="node-name">Nginx-B</span>
+          <div class="node-meta">与 A 同配置；<code>try_files</code> 兜底前端 <code>index.html</code> 支持 History 路由</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow"><div></div><div class="flow-inner">
+      <span class="num">4</span>
+      <svg class="arrow-v" viewBox="0 0 12 30" fill="none" aria-hidden="true"><path d="M6 0v23" stroke="#9BAABA" stroke-width="1.6"/><path d="M1.5 19.5L6 25l4.5-5.5" stroke="#9BAABA" stroke-width="1.6" fill="none"/></svg>
+      <span class="flow-txt">静态请求在此<b>终止</b>；API 请求才下发到网关，<b>只此一跳</b></span>
+    </div></div>
+
+    <!-- L4 Gateway -->
+    <div class="layer">
+      <div class="layer-meta">
+        <span class="lv">L4</span>
+        <span class="ln">统一网关</span>
+        <span class="lm">鉴权·限流·路由</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">Gateway 实例 1</span>
+          <div class="node-meta">GlobalFilter 鉴权 / traceId / 限流；<code>lb://order-service</code> 转发</div>
+        </div>
+        <div class="node">
+          <span class="node-name">Gateway 实例 2</span>
+          <div class="node-meta">无状态，横向扩容；自身也注册进 Nacos 供上游发现</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow"><div></div><div class="flow-inner">
+      <span class="num">5</span>
+      <svg class="arrow-v" viewBox="0 0 12 30" fill="none" aria-hidden="true"><path d="M6 0v23" stroke="#9BAABA" stroke-width="1.6"/><path d="M1.5 19.5L6 25l4.5-5.5" stroke="#9BAABA" stroke-width="1.6" fill="none"/></svg>
+      <span class="flow-txt"><b>从 Nacos 拉实例列表 → Spring Cloud LoadBalancer 轮询</b>　网关只认服务名，不写死 IP</span>
+    </div></div>
+
+    <!-- L5 微服务 -->
+    <div class="layer">
+      <div class="layer-meta">
+        <span class="lv">L5</span>
+        <span class="ln">业务服务</span>
+        <span class="lm">Nacos 注册</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">user-service ×N</span>
+          <div class="node-meta">启动即注册到 Nacos，实例上下线实时同步</div>
+        </div>
+        <div class="node">
+          <span class="node-name">order-service ×N</span>
+          <div class="node-meta">被 <code>lb://order-service</code> 定向寻址</div>
+        </div>
+        <div class="node">
+          <span class="node-name">pay-service ×N</span>
+          <div class="node-meta">同理，网关侧无需感知实例地址</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow"><div></div><div class="flow-inner">
+      <span class="num">6</span>
+      <svg class="arrow-v" viewBox="0 0 12 30" fill="none" aria-hidden="true"><path d="M6 0v23" stroke="#9BAABA" stroke-width="1.6"/><path d="M1.5 19.5L6 25l4.5-5.5" stroke="#9BAABA" stroke-width="1.6" fill="none"/></svg>
+      <span class="flow-txt">服务内部访问存储，<b>不经过网关</b>（网关只做南北向，不做东西向）</span>
+    </div></div>
+
+    <!-- L6 数据层 -->
+    <div class="layer">
+      <div class="layer-meta">
+        <span class="lv">L6</span>
+        <span class="ln">数据层</span>
+        <span class="lm">内网</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">MySQL 主从</span>
+          <div class="node-meta">按服务垂直分库，不跨库调用</div>
+        </div>
+        <div class="node">
+          <span class="node-name">Redis 集群</span>
+          <div class="node-meta">缓存 + 网关限流的令牌桶存储</div>
+        </div>
+        <div class="node">
+          <span class="node-name">消息队列</span>
+          <div class="node-meta">异步解耦，削峰</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 控制面 -->
+    <div class="plane">
+      <div class="plane-h"><b>旁挂控制面</b> 不承载任何业务流量，只做注册、配置下发与观测</div>
+      <div class="nodes">
+        <div class="node">
+          <span class="node-name">Nacos 集群</span>
+          <div class="node-meta">注册中心 + 配置中心，L4 / L5 均向它注册与拉取</div>
+        </div>
+        <div class="node">
+          <span class="node-name">Prometheus / Grafana</span>
+          <div class="node-meta">网关的 QPS、P99、5xx 指标在这里聚合</div>
+        </div>
+        <div class="node">
+          <span class="node-name">ELK / Loki</span>
+          <div class="node-meta">traceId 串起 Nginx → 网关 → 服务全链路日志</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span class="lg"><i class="sw sw-a"></i>本次新增</span>
+      <span class="lg"><i class="sw sw-b"></i>业务节点</span>
+      <span class="lg"><i class="sw sw-c"></i>旁挂 / 可选</span>
+      <span class="lg">箭头编号 = 请求经过顺序，响应原路返回</span>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h2>四个必须定下来的决策</h2>
+
+    <div class="note">
+      <p class="note-h"><span>01</span>SLB 为什么只能放最前面</p>
+      <p>SLB 的价值是「一个公网 VIP + 后端多实例」。如果把它插到 Nginx 后面、网关前面，它既没有公网 IP，又和 Nginx 抢同一段内网流量，等于白买。放进来的位置只能是 <b>公网 → SLB → Nginx</b>，让 SLB 成为唯一暴露面，Nginx 退到内网。</p>
+    </div>
+
+    <div class="note">
+      <p class="note-h"><span>02</span>选四层 CLB，还是七层 ALB</p>
+      <p><b>CLB（四层）</b>：按端口转发，443 的监听后端统一给 Nginx 组，静态与 API 的分流仍由 Nginx 做。改动最小，Nginx 的缓存、gzip、限流、灰度能力全保留，<b>推荐</b>。<br>
+      <b>ALB（七层）</b>：可以按 <code>/api/*</code>、<code>/*.js</code> 这类规则直接指向两个后端组，Nginx 只承载静态、网关直接挂 ALB，少一跳。代价是成本更高，且网关前失去 Nginx 这层缓冲。</p>
+    </div>
+
+    <div class="note">
+      <p class="note-h"><span>03</span>Nginx 在中间不是冗余</p>
+      <p>静态文件本地返回、<code>gzip</code>、<code>expires</code>、单机限流、灰度分支、多站点多域名，这些都是 SLB 做不了的七层事。只要静态资源和 API 还共用一个域名，这一层就该留着。</p>
+    </div>
+
+    <div class="note">
+      <p class="note-h"><span>04</span>两个容易漏的运维点</p>
+      <p><b>带宽</b>：静态资源如果全压在 Nginx，SLB 的出流量会按 GB 计费，成本会失控。静态必须上 CDN，SLB 只承载 API 与回源。<br>
+      <b>网关扩容</b>：Nginx 的 <code>upstream</code> 是静态配置，不会自动感知 Nacos。网关实例动态扩缩时，要么手动/脚本刷 Nginx，要么上 OpenResty + Lua 动态拉取；否则改用 ALB 直接挂网关组，配合弹性伸缩。这是这套拓扑里唯一没有被 Nacos 自动化的接缝。</p>
+    </div>
+  </div>
+
+  <p class="foot">若后续引入灰度发布，可在 L3 的 Nginx 按 header / cookie 分流到两套网关 upstream，或在 L4 的网关用 <code style="font-family:var(--mono)">Weight</code> 谓词按比例导流，SLB 层不需要任何改动。</p>
+
+</div>
+</body>
+</html>

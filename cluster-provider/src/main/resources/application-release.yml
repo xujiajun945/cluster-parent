@@ -5,14 +5,14 @@ spring:
     nacos:
       config:
         server-addr: 172.22.98.193:8848
-        username: nacos
-        password: xujiajun945
+        username: clusterUser
+        password: 940404
         namespace: prod
         refresh-enabled: true
       discovery:
         server-addr: 172.22.98.193:8848
-        username: nacos
-        password: xujiajun945
+        username: clusterUser
+        password: 940404
         namespace: prod
         group: v1
         cluster-name: wh
