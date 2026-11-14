@@ -10,6 +10,13 @@
 2. [L1 Netty 层：连接级拦截](#l1-netty-层连接级拦截)
 3. [L2 WebFilter 层：所有请求的第一道](#l2-webfilter-层所有请求的第一道)
 4. [L3 路由谓词层：判断是否放行](#l3-路由谓词层判断是否放行)
+   - [3.1 示例：按来源 IP 网段匹配](#31-示例按来源-ip-网段匹配cidr)
+   - [3.2 Spring Cloud Gateway 内置断言（RoutePredicate）全表](#32-spring-cloud-gateway-内置断言routepredicate全表)
+      - [3.2.1 内置断言全表（13 个）](#321-内置断言全表13-个)
+      - [3.2.2 最容易出错的点](#322-最容易出错的点)
+   - [3.3 典型组合示例](#33-典型组合示例)
+   - [3.4 断言在链路中的位置（便于对照）](#34-断言在链路中的位置便于对照)
+   - [3.5 命名规则](#35-命名规则)
 5. [L4 GlobalFilter / GatewayFilter 层：真正的"拦截器"](#l4-globalfilter--gatewayfilter-层真正的拦截器)
    - [4.1 GlobalFilter 实现鉴权](#41-globalfilter-实现鉴权最常用)
    - [4.2 自定义 GatewayFilterFactory](#42-自定义-gatewayfilterfactory路由级拦截)
@@ -122,9 +129,9 @@ spring:
 
 **重要**：谓词决定"走哪条路由"，过滤链决定"对已命中路由做什么"。只有先命中路由，L4 才会被触发。
 
-### 示例：按来源 IP 网段匹配（`Cidr`）
+### 3.1 示例：按来源 IP 网段匹配（`Cidr`）
 
-内置断言 `Header` / `Query` / `Host` 都只做字符串匹配，**没有 IP 网段**这种能力，正好拿来演示。
+演示一个按来源IP网关匹配的断言（内置断言有对应功能的断言（XForwardedRemoteAddr），仅作演示）。
 
 ```java
 @Component                                                              // 必须注册为 Bean，Gateway 会自动收集所有 RoutePredicateFactory
@@ -252,6 +259,183 @@ spring:
 所有断言是 **AND** 关系，`Cidr` 不通过 → 这条路由不命中 → 继续试下一条路由；全部不命中则返回 404。**不会自动返回 403**，这是断言的语义决定的。
 
 如果你想要 “外部 IP 访问管理接口返回 403 而不是 404”，不能靠断言，得在 `GlobalFilter` 里判断后主动返回 403。
+
+### 3.2 Spring Cloud Gateway 内置断言（RoutePredicate）全表
+
+> 断言（Predicate）属于链路中的 **L3 路由匹配层**，只负责「这个请求该不该进这条路由」，返回 boolean，不参与请求处理。
+
+---
+
+#### 3.2.1 内置断言全表（13 个）
+
+| # | 断言 | 作用 | yaml 示例 |
+|---|---|---|---|
+| 1 | `After` | 某时间点之后才允许访问 | `- After=2026-01-01T00:00:00+08:00[Asia/Shanghai]` |
+| 2 | `Before` | 某时间点之前 | `- Before=2026-06-01T00:00:00+08:00[Asia/Shanghai]` |
+| 3 | `Between` | 时间区间内（两个时间用逗号分隔） | `- Between=2026-01-01T00:00:00+08:00,2026-06-01T00:00:00+08:00` |
+| 4 | `Cookie` | Cookie 名 = 值（值支持**正则**） | `- Cookie=chocolate, ch.p` |
+| 5 | `Header` | 请求头名 = 值（值支持**正则**） | `- Header=X-Request-Id, \d+` |
+| 6 | `Host` | 域名匹配，支持通配与多值 | `- Host=**.example.com,api.example.com` |
+| 7 | `Method` | HTTP 方法，可多值 | `- Method=GET,POST` |
+| 8 | `Path` | 路径匹配，Ant 风格通配 | `- Path=/api/order/**` |
+| 9 | `Query` | 查询参数名 = 值（值支持**正则**） | `- Query=token, [a-z]+` |
+| 10 | `RemoteAddr` | 来源 IP，**支持 CIDR 网段**（v4/v6） | `- RemoteAddr=192.168.1.1/24,10.8.0.0/16` |
+| 11 | `XForwardedRemoteAddr` | 基于 **X-Forwarded-For** 的来源 IP，同样支持 CIDR | `- XForwardedRemoteAddr=203.0.113.0/24` |
+| 12 | `Weight` | 按权重分组分流（灰度/AB 常用） | `- Weight=group1, 80` |
+| 13 | `CloudFoundryRouteService` | Cloud Foundry 路由服务识别（极少用） | `- CloudFoundryRouteService` |
+
+---
+
+内置断言已经覆盖了「按 IP 网段匹配」这个能力：
+
+- `RemoteAddr` → 直接支持 `192.168.0.0/16`
+- `XForwardedRemoteAddr` → 取 `X-Forwarded-For` 再按网段匹配
+
+所以自定义一个 `CidrRoutePredicateFactory`，在生产环境里**基本是重复造轮子**：
+
+```yaml
+predicates:
+  - XForwardedRemoteAddr=192.168.0.0/16,10.8.0.0/16    # 比自定义更省事
+  - Path=/api/admin/**
+```
+
+**只有在需要「完全自定义的判断逻辑」时才值得自己写**，例如：
+
+- 按 JWT 里的租户 ID 路由
+- 按设备型号 / 客户端版本路由
+- 按请求体里的业务字段路由（需配合 `ReadBody` 或自行读取）
+
+自定义断言的价值主要是**理解 PredicateFactory 的写法**，而不是替代内置能力。
+
+> 注意：`apply()` 是**每条路由构建时调用一次**，不是每个请求调用一次。所有逐请求逻辑必须写在返回的 lambda 里；断言内**禁止查 Redis / 查库 / 调远程接口**，它在同步的路由匹配阶段执行。
+
+---
+
+#### 3.2.2 最容易出错的点
+
+##### ① 同一 `predicates` 列表里，多条是 AND
+
+```yaml
+predicates:
+  - Path=/api/order/**
+  - Method=POST
+  - Header=X-Gray, v2
+```
+
+三个必须**同时**满足。想实现 OR，只能拆成两条路由。
+
+##### ② `Path` 的三种通配
+
+| 写法 | 含义 |
+|---|---|
+| `/api/order/*` | 只匹配**一级**，`/api/order/1` 命中，`/api/order/1/2` 不命中 |
+| `/api/order/**` | 匹配**任意层级**，全命中 |
+| `/api/order/?` | `?` 匹配**单个字符** |
+
+##### ③ 值都按正则处理
+
+`Header=X-Version, v[0-9]+` 这种是正则。想写精确值要注意 `.` 会被当通配符，必要时转义。
+
+##### ④ 时间断言必须带时区
+
+```yaml
+- After=2026-01-01T00:00:00+08:00[Asia/Shanghai]
+```
+
+只写 `2026-01-01T00:00:00` 会被按 UTC 解析，比中国时间早 8 小时生效。
+
+##### ⑤ `Weight` 必须配两条以上同类路由
+
+```yaml
+- id: canary
+  uri: lb://order-service-canary
+  predicates:
+    - Path=/api/order/**
+    - Weight=order-group, 10        # 10% 流量
+
+- id: stable
+  uri: lb://order-service
+  predicates:
+    - Path=/api/order/**
+    - Weight=order-group, 90        # 90% 流量
+```
+
+同 `group` 同 `Path`，按 10:90 分流。
+
+---
+
+### 3.3 典型组合示例
+
+```yaml
+routes:
+  # 管理接口：只允许内网 + 只允许指定时间窗口
+  - id: admin
+    uri: lb://admin-service
+    predicates:
+      - Path=/api/admin/**
+      - XForwardedRemoteAddr=192.168.0.0/16        # 内网来源
+      - Between=2026-01-01T09:00:00+08:00,2026-12-31T18:00:00+08:00
+    filters:
+      - StripPrefix=2
+
+  # 支付回调：只收 POST、只认特定 UA
+  - id: pay-callback
+    uri: lb://pay-service
+    predicates:
+      - Path=/api/pay/notify/*
+      - Method=POST
+      - Header=User-Agent, ^Alipay.*$
+    filters:
+      - StripPrefix=2
+
+  # 灰度：按权重切 5% 流量到新版本
+  - id: order-canary
+    uri: lb://order-service-v2
+    predicates:
+      - Path=/api/order/**
+      - Weight=order, 5
+```
+
+---
+
+### 3.4 断言在链路中的位置（便于对照）
+
+```
+请求进入
+  ↓
+L2  WebFilter（traceId、全局日志、Security）
+  ↓
+L3  断言匹配 ← RoutePredicate 在这里执行（After/Path/Header/RemoteAddr/Weight…）
+  │    命中 → 选定唯一一条 route，命中即停
+  ↓
+L4  filter 链（GlobalFilter + 该路由的 filters + default-filters）
+  ↓
+L5  转发（ReactiveLoadBalancerClientFilter + NettyRoutingFilter）
+  ↓
+L6  异常处理（ErrorWebExceptionHandler）
+```
+
+| | L3 断言 | L4 filter |
+|---|---|---|
+| 接口 | `Predicate<ServerWebExchange>` | `GatewayFilter` / `GlobalFilter` |
+| 返回 | **`boolean`** | **`Mono<Void>`** |
+| 执行者 | `RoutePredicateHandlerMapping` | `FilteringWebHandler` |
+| 能否主动返回响应 | ❌ 只能返回 true/false | ✅ 可以写 401 / 改写 body |
+| 拒绝请求的后果 | 路由不命中 → 试下一条 → 全不中返回 **404** | 直接返回你指定的状态码 |
+
+**断言拒绝请求时是 404 而不是 403** —— L3 只负责「选不选你」，不负责「回复你」。若要返回 403，需在 `GlobalFilter` 里判断后主动写响应。
+
+---
+
+### 3.5 命名规则
+
+类名 `XxxRoutePredicateFactory` → 去掉后缀 `RoutePredicateFactory` → 默认 `name()` 即 `Xxx`。
+
+- `CidrRoutePredicateFactory` → yaml 写 `- Cidr`
+- 内置的 `PathRoutePredicateFactory` → yaml 写 `- Path`
+
+不需要手写 `name()`，除非想用与类名不一致的名称。
+
 
 ---
 

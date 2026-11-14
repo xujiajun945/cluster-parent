@@ -1,5 +1,6 @@
 package com.example.gateway.handler.L4;
 
+import com.example.core.util.TaskUtils;
 import io.valkey.springframework.data.valkey.core.ValkeyTemplate;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,8 +9,11 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
@@ -79,28 +83,46 @@ public class IdempotentGatewayFilterFactory extends AbstractGatewayFilterFactory
         return new OrderedGatewayFilter(
                 // 这里是每个请求都会执行的 lambda
                 (exchange, chain) -> {
-                    // 取请求
-                    ServerHttpRequest req = exchange.getRequest();
-                    // 幂等键由客户端传
-                    String key = req.getHeaders().getFirst("X-Idem-Key");
-                    // 未传幂等键视为非幂等请求，直接放行
-                    if (key == null) {
-                        return chain.filter(exchange);
-                    }
+                    // 幂等键
+                    String key = buildKey(exchange);
                     // 构造 Redis key 使用分布式锁
                     String cacheKey = "idem:" + key;
                     Boolean locked = valkeyTemplate.opsForValue()
-                            .setIfAbsent(cacheKey, "1", Duration.ofSeconds(config.getTtlSeconds()));
+                            .setIfAbsent(cacheKey, "PROCESSING", Duration.ofSeconds(config.getTtlSeconds()));
                     // 拿到锁才可以放行
                     if (locked == null || !locked) {
                         // 重复请求 返回 409
                         exchange.getResponse().setStatusCode(HttpStatus.CONFLICT);
                         return exchange.getResponse().setComplete();
                     }
-                    return chain.filter(exchange);
+                    return chain.filter(exchange)
+                            .then(Mono.fromRunnable(TaskUtils.wrap(() -> {
+                                HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+                                int status = statusCode.value();
+                                if (status >= 200 && status < 300) {
+                                    // 成功 → 标记为已完成
+                                    valkeyTemplate.opsForValue().set(key, "SUCCESS", config.getTtlSeconds());
+                                } else {
+                                    // 失败 → 释放，允许重试
+                                    valkeyTemplate.delete(key);
+                                }
+                            }, exception -> valkeyTemplate.delete(cacheKey))));
                 },
                 // 顺序取自配置
                 config.getOrder());
+    }
+
+    private String buildKey(ServerWebExchange exchange) {
+        String clientKey = exchange.getRequest().getHeaders().getFirst("X-Idem-Key");
+        // 客户端主动传
+        if (clientKey != null) {
+            return clientKey;
+        }
+        // 兜底：用「用户 + 方法 + 路径 + 关键参数」拼，别用全量 body（要读 body，成本高）
+        return exchange.getAttribute("userId")
+                + ":" + exchange.getRequest().getMethod()
+                + ":" + exchange.getRequest().getPath();
+//                + ":" + exchange.getRequest().getQueryParams().getFirst("orderNo");
     }
 
     /**

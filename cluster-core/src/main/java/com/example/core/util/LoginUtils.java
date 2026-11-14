@@ -114,8 +114,8 @@ public class LoginUtils {
         try {
             String subject = JwtTokenUtils.verifyToken(auth);
             Map<String, Object> userJwtInfo = JsonUtils.parseMap(subject, HashMap.class, String.class, Object.class);
-            Long userId = (Long) userJwtInfo.get("userId");
-            if (null != userId) {
+            Long userId = Long.valueOf(String.valueOf(userJwtInfo.get("userId")));
+            if (userId > 0) {
                 return userId;
             }
         } catch (Exception e) {

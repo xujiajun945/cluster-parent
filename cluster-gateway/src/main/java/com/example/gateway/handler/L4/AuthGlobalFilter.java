@@ -34,7 +34,8 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     /**
      * 白名单路径
      */
-    private static final List<String> WHITE = List.of("/auth/login", "/actuator/health");
+    private static final List<String> WHITE = List
+            .of("/auth/login", "/actuator/health", "/api/consumer/login/normal", "/api/consumer/login/jwt");
 
     /**
      * 主拦截逻辑
@@ -54,9 +55,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         // 取 Authorization 头
-        String token = req.getHeaders().getFirst("Authorization");
+        String token = req.getHeaders().getFirst("auth");
         // 没带或格式不对直接返回 401，不调用 chain（链在此中断）
-        if (token == null || !token.startsWith("Bearer ")) {
+        if (token == null || token.isEmpty()) {
             return reject(exchange, "missing token");
         }
         try {

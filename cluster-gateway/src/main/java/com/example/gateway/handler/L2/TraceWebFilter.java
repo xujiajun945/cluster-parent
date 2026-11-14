@@ -60,7 +60,7 @@ public class TraceWebFilter implements WebFilter {
                     // 计算耗时
                     long cost = System.currentTimeMillis() - start;
                     // 打印HTTP 方法, 响应状态码, 耗时
-                    log.info("{} {} -> {} {}ms", traceId,
+                    log.info("traceId:{} method:{} -> status:{} gatewayCost:{}ms", traceId,
                             exchange.getRequest().getMethod(),
                             exchange.getResponse().getStatusCode(),
                             cost);
