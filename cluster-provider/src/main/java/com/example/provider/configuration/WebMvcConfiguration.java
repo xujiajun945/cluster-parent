@@ -2,10 +2,12 @@ package com.example.provider.configuration;
 
 import com.example.core.handler.LocalDateSerializer;
 import com.example.core.handler.LocalDateTimeSerializer;
+import com.example.core.handler.LogFilter;
 import com.example.provider.handler.LoginInterceptor;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.web.servlet.FilterRegistration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -52,6 +54,13 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
                 .order(0);
         WebMvcConfigurer.super.addInterceptors(registry);
+    }
+
+    @FilterRegistration(urlPatterns = "/*", name = "logFilter", order = 0)
+    @Bean
+    @ConditionalOnMissingBean(LogFilter.class)
+    public LogFilter logFilter() {
+        return new LogFilter();
     }
 
     @Bean

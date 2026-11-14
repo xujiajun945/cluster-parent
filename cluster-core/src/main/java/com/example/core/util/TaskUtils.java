@@ -2,10 +2,16 @@ package com.example.core.util;
 
 import com.example.core.config.ClusterAppContext;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
+import org.springframework.util.ObjectUtils;
 
 import java.util.function.Consumer;
 
 /**
+ * 包装Runnable，处理日志、登录上下文、异常回调
+ * spring原生也提供一个工具类，只需要配置好线程池并传值即可
+ * @see org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor#setTaskDecorator
+ * @see org.springframework.core.task.TaskDecorator
  *
  * @author xujiajun
  * @since 2026/11/10
@@ -37,9 +43,15 @@ public class TaskUtils {
      * @return 包装好的Runnable，可以丢给线程池execute
      */
     public static Runnable wrap(String taskName, AsyncBizTask bizTask, Consumer<Exception> failCallback) {
+        // 处理日志traceId
+        String traceId = MDC.get("traceId");
         ClusterAppContext context = CONTEXT.get();
         return () -> {
             try {
+                // 设置MDC里的traceId
+                if (!ObjectUtils.isEmpty(traceId)) {
+                    MDC.put("traceId", traceId);
+                }
                 // 设置登录上下文
                 if (context != null) {
                     LoginUtils.setContext(context);
@@ -60,6 +72,7 @@ public class TaskUtils {
             } finally {
                 // 清理threadLocal资源
                 LoginUtils.removeContext();
+                MDC.remove("traceId");
             }
         };
     }

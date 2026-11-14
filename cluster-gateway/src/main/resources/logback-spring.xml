@@ -7,7 +7,7 @@
 	<!-- 定义日志的根目录 -->
 	<property name="LOG_HOME" value="./logs" />
 	<!-- 定义日志的输出格式 -->
-	<property name="LOG_PATTERN" value="%cyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %boldYellow(%-5p) [%thread] %blue(%c{1}) - %msg%n"/>
+	<property name="LOG_PATTERN" value="%cyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %boldYellow(%-5p) [%thread] %blue(%c{1}) - traceId=[%X{traceId}]|%msg%n"/>
 
 	<!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
 	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
