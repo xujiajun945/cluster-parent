@@ -1,7 +1,6 @@
 package com.example.consumer.handler;
 
 import com.example.consumer.client.UserClient;
-import com.example.consumer.configuration.ValkeySessionRepository;
 import com.example.core.config.RememberMeConfig;
 import com.example.core.dto.UserRememberMeDTO;
 import com.example.core.util.ClusterExecutor;
@@ -28,8 +27,6 @@ public class RememberMeAdvice {
 
     @Autowired
     private RememberMeConfig config;
-
-    private ValkeySessionRepository sessionRepository;
 
     @Pointcut(value = "execution(* com.example.consumer.service.impl.LoginServiceImpl.normalLogin(..))")
     public void pointcut() {}

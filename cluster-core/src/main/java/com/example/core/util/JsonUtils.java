@@ -57,10 +57,11 @@ public final class JsonUtils {
         return Object;
     }
 
-    public static <T> T parseObject(Object o, Class<T> t) {
-        String json = toJson(o);
-        T object = parseObject(json, t);
-        return object;
+    public static <T> T convertObject(Object o, Class<T> t) {
+        if (o == null) {
+            return null;
+        }
+        return PARSER.convertValue(o, t);
     }
 
     public static <T> List<T> parseArray(String json, Class<T> tClass) {

@@ -1,10 +1,8 @@
-package com.example.provider.configuration;
+package com.example.core.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -14,8 +12,6 @@ import java.time.temporal.ChronoUnit;
  * @author xujiajun
  * @since 2026/11/2
  */
-@Component
-@ConfigurationProperties(prefix = "cluster-provider.valkey-session")
 @Setter
 @Getter
 public class ValkeySessionConfig {

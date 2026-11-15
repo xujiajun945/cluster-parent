@@ -1,5 +1,7 @@
 package com.example.consumer.configuration;
 
+import com.example.core.config.ValkeySessionConfig;
+import com.example.core.config.ValkeySessionRepository;
 import com.example.core.handler.LocalDateDeserializer;
 import com.example.core.handler.LocalDateSerializer;
 import com.example.core.handler.LocalDateTimeDeserializer;
@@ -11,9 +13,12 @@ import io.valkey.springframework.data.valkey.core.ValkeyTemplate;
 import io.valkey.springframework.data.valkey.serializer.JacksonJsonValkeySerializer;
 import io.valkey.springframework.data.valkey.serializer.StringValkeySerializer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.web.server.Cookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
@@ -61,8 +66,8 @@ public class RedisConfiguration {
         valkeyTemplate.setEnableDefaultSerializer(true);
         valkeyTemplate.setKeySerializer(stringValkeySerializer);
         valkeyTemplate.setValueSerializer(jsonValueSerializer);
-//        valkeyTemplate.setHashKeySerializer();
-//        valkeyTemplate.setHashValueSerializer(jsonValueSerializer);
+        valkeyTemplate.setHashKeySerializer(stringValkeySerializer);
+        valkeyTemplate.setHashValueSerializer(jsonValueSerializer);
         valkeyTemplate.afterPropertiesSet();
         return valkeyTemplate;
     }
@@ -72,14 +77,19 @@ public class RedisConfiguration {
         return new ValkeySessionRepository(template, config);
     }
 
-//    @Bean
-//    public CookieSerializer cookieSerializer() {
-//        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-//        serializer.setCookieName("JSESSIONID");
-//        serializer.setCookiePath("/");
+    @Bean
+    public CookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        // todo xujiajun 从配置文件读
+        serializer.setCookieName("clusterSession_dev");
+        serializer.setCookiePath("/");
+        serializer.setSameSite(Cookie.SameSite.LAX.name());
+        serializer.setDomainName("localhost");
+        serializer.setUseBase64Encoding(false);
+        serializer.setUseHttpOnlyCookie(true);
 //        serializer.setDomainNamePattern("^.+?\\.(\\w+\\.[a-z]+)$");
-//        return serializer;
-//    }
+        return serializer;
+    }
 
     @Bean
     public ValkeyClient valkeyClient(ValkeyTemplate<String, Object> valkeyTemplate) {

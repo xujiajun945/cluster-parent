@@ -74,7 +74,7 @@ public class LoginUtils {
     }
 
     public static UserDTO getUserFromSession(HttpSession session) {
-        UserDTO user = (UserDTO) session.getAttribute("user");
+        UserDTO user = JsonUtils.convertObject(session.getAttribute("user"), UserDTO.class);
         if (null == user || null == user.getId()) {
             return null;
         }

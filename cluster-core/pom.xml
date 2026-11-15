@@ -50,11 +50,16 @@
             <artifactId>spring-cloud-loadbalancer</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/io.valkey.springframework.data/spring-data-valkey -->
+
         <dependency>
-            <groupId>io.valkey.springframework.data</groupId>
-            <artifactId>spring-data-valkey</artifactId>
+            <groupId>io.valkey.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-valkey</artifactId>
+            <scope>provided</scope>
             <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-core</artifactId>
             <scope>provided</scope>
         </dependency>
 

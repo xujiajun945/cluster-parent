@@ -1,7 +1,6 @@
 package com.example.consumer.handler;
 
 import com.example.consumer.client.UserClient;
-import com.example.consumer.configuration.ValkeySessionRepository;
 import com.example.core.config.RememberMeConfig;
 import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
@@ -31,9 +30,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Autowired
     private RememberMeConfig rememberMeConfig;
-
-    @Autowired
-    private ValkeySessionRepository sessionRepository;
 
     @Lazy
     @Autowired

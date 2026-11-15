@@ -52,7 +52,7 @@ public class ValkeyClient {
 
     public <T> T setGet(String key, Object value, Duration expTime, Class<T> tClass) {
         Object o = valkeyTemplate.opsForValue().setGet(key, value, expTime);
-        T object = JsonUtils.parseObject(o, tClass);
+        T object = JsonUtils.convertObject(o, tClass);
         log.info("redis client: setget {} {} {}", key, JsonUtils.toJson(value), expTime);
         return object;
     }
@@ -65,7 +65,7 @@ public class ValkeyClient {
 
     public <T> T get(String key, Class<T> tClass) {
         Object value = valkeyTemplate.opsForValue().get(key);
-        T result = JsonUtils.parseObject(value, tClass);
+        T result = JsonUtils.convertObject(value, tClass);
         log.info("redis client: get {} {}", key, JsonUtils.toJson(value));
         return result;
     }
