@@ -44,7 +44,7 @@ public class LoginServiceImpl implements LoginService {
         loginDTO.setToken(token);
 
         HttpSession session = LoginUtils.getSession();
-        log.info("当前session生成时间： {}", TimeUtils.parse(session.getCreationTime()));
+        log.info("当前session生成时间： {}", TimeUtils.parseLocalDateTime(session.getCreationTime()));
         LoginUtils.setUserToSession(userDTO);
         session.setMaxInactiveInterval(60 * 60 * 2);
         return loginDTO;
@@ -55,7 +55,7 @@ public class LoginServiceImpl implements LoginService {
         LoginDTO loginDTO = new LoginDTO();
 
         HttpSession session = LoginUtils.getSession();
-        log.info("当前session生成时间： {}", TimeUtils.parse(session.getCreationTime()));
+        log.info("当前session生成时间： {}", TimeUtils.parseLocalDateTime(session.getCreationTime()));
 
         UserDTO userFromSession = LoginUtils.getUserFromSession(session);
         if (null != userFromSession && null != userFromSession.getId()) {

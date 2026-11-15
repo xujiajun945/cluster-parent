@@ -96,18 +96,24 @@ public final class TimeUtils {
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
-    public static LocalDateTime parse(String timeStr, String pattern) {
+    public static LocalDateTime parseLocalDateTime(String timeStr, String pattern) {
         DateTimeFormatter formatter = getFormatter(pattern);
         LocalDateTime localDateTime = LocalDateTime.parse(timeStr, formatter);
         return localDateTime;
     }
 
-    public static LocalDateTime parse(long timestamp) {
+    public static LocalDate parseLocalDate(String timeStr, String pattern) {
+        DateTimeFormatter formatter = getFormatter(pattern);
+        LocalDate localDate = LocalDate.parse(timeStr, formatter);
+        return localDate;
+    }
+
+    public static LocalDateTime parseLocalDateTime(long timestamp) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
     }
 
     public static Instant parseInstant(String timeStr, String pattern) {
-        return parse(timeStr, pattern).atZone(ZoneId.systemDefault()).toInstant();
+        return parseLocalDateTime(timeStr, pattern).atZone(ZoneId.systemDefault()).toInstant();
     }
 
 }

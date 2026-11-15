@@ -1,20 +1,22 @@
 package com.example.gateway.handler.L4;
 
-import com.example.core.util.TaskUtils;
-import io.valkey.springframework.data.valkey.core.ValkeyTemplate;
+import io.valkey.springframework.data.valkey.core.ReactiveValkeyTemplate;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 
@@ -38,7 +40,7 @@ import java.util.List;
 public class IdempotentGatewayFilterFactory extends AbstractGatewayFilterFactory<IdempotentGatewayFilterFactory.Config> {
 
     @Autowired
-    private ValkeyTemplate<String, Object> valkeyTemplate;
+    private ReactiveValkeyTemplate<String, Object> valkeyTemplate;
 
     /**
      * 必须有构造器
@@ -79,37 +81,40 @@ public class IdempotentGatewayFilterFactory extends AbstractGatewayFilterFactory
      */
     @Override
     public GatewayFilter apply(Config config) {
+        GatewayFilter filter = (exchange, chain) -> {
+            // 幂等键
+            String key = buildKey(exchange);
+            // 构造 Redis key 使用分布式锁
+            String cacheKey = "idem:" + key;
+            return valkeyTemplate.opsForValue()
+                    .setIfAbsent(cacheKey, "PROCESSING", Duration.ofSeconds(config.getTtlSeconds()))
+                    .flatMap(locked -> {
+                        if (!locked) {
+                            // 重复请求 返回 409
+                            ServerHttpResponse resp = exchange.getResponse();
+                            resp.setStatusCode(HttpStatus.CONFLICT);
+                            resp.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                            byte[] body = "{\"code\":409,\"msg\":\"请勿重复提交\"}".getBytes(StandardCharsets.UTF_8);
+                            DataBuffer buffer = resp.bufferFactory().wrap(body);
+                            return resp.writeWith(Mono.just(buffer));
+                        }
+                        return chain.filter(exchange)
+                                .then(Mono.defer(() -> {
+                                    HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+                                    int status = (statusCode == null ? HttpStatus.OK : statusCode).value();
+                                    if (status >= 200 && status < 300) {
+                                        // 成功 → 标记为已完成
+                                        return valkeyTemplate.opsForValue().set(key, "SUCCESS", config.getTtlSeconds()).then();
+                                    } else {
+                                        // 失败 → 释放，允许重试
+                                        return valkeyTemplate.delete(key).then();
+                                    }
+                                }))
+                                .onErrorResume(e -> valkeyTemplate.delete(cacheKey).then(Mono.error(e)));
+                    });
+        };
         // OrderedGatewayFilter: 对 GatewayFilter 进行包装以便自定义顺序
-        return new OrderedGatewayFilter(
-                // 这里是每个请求都会执行的 lambda
-                (exchange, chain) -> {
-                    // 幂等键
-                    String key = buildKey(exchange);
-                    // 构造 Redis key 使用分布式锁
-                    String cacheKey = "idem:" + key;
-                    Boolean locked = valkeyTemplate.opsForValue()
-                            .setIfAbsent(cacheKey, "PROCESSING", Duration.ofSeconds(config.getTtlSeconds()));
-                    // 拿到锁才可以放行
-                    if (locked == null || !locked) {
-                        // 重复请求 返回 409
-                        exchange.getResponse().setStatusCode(HttpStatus.CONFLICT);
-                        return exchange.getResponse().setComplete();
-                    }
-                    return chain.filter(exchange)
-                            .then(Mono.fromRunnable(TaskUtils.wrap(() -> {
-                                HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
-                                int status = statusCode.value();
-                                if (status >= 200 && status < 300) {
-                                    // 成功 → 标记为已完成
-                                    valkeyTemplate.opsForValue().set(key, "SUCCESS", config.getTtlSeconds());
-                                } else {
-                                    // 失败 → 释放，允许重试
-                                    valkeyTemplate.delete(key);
-                                }
-                            }, exception -> valkeyTemplate.delete(cacheKey))));
-                },
-                // 顺序取自配置
-                config.getOrder());
+        return config.getOrder() > 0 ? new OrderedGatewayFilter(filter, config.getOrder()) : filter;
     }
 
     private String buildKey(ServerWebExchange exchange) {
@@ -137,6 +142,6 @@ public class IdempotentGatewayFilterFactory extends AbstractGatewayFilterFactory
         private long ttlSeconds = 60;
 
         // 过滤链顺序
-        private int order = 0;
+        private int order = 10;
     }
 }

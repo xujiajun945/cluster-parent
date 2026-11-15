@@ -1,12 +1,12 @@
 package com.example.core.handler;
 
+import com.example.core.util.TimeUtils;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 /**
  * LocalDate类 jackson序列化方式
@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class LocalDateSerializer extends StdSerializer<LocalDate> {
 
-        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy:MM:dd");
+        private static final String PATTERN = "yyyy:MM:dd";
 
         public LocalDateSerializer() {
             super(LocalDate.class);
@@ -24,7 +24,7 @@ public class LocalDateSerializer extends StdSerializer<LocalDate> {
 
         @Override
         public void serialize(LocalDate value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
-            String dateTimeStr = FORMATTER.format(value);
+            String dateTimeStr = TimeUtils.format(value, PATTERN);
             gen.writeString(dateTimeStr);
         }
     }

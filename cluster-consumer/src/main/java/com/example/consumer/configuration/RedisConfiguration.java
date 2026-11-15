@@ -1,18 +1,16 @@
 package com.example.consumer.configuration;
 
+import com.example.core.handler.LocalDateDeserializer;
 import com.example.core.handler.LocalDateSerializer;
+import com.example.core.handler.LocalDateTimeDeserializer;
 import com.example.core.handler.LocalDateTimeSerializer;
 import com.example.core.util.ValkeyClient;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.valkey.springframework.data.valkey.connection.ValkeyStandaloneConfiguration;
 import io.valkey.springframework.data.valkey.connection.lettuce.LettuceConnectionFactory;
 import io.valkey.springframework.data.valkey.core.ValkeyTemplate;
 import io.valkey.springframework.data.valkey.serializer.JacksonJsonValkeySerializer;
 import io.valkey.springframework.data.valkey.serializer.StringValkeySerializer;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
@@ -21,6 +19,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.TimeZone;
 
@@ -33,35 +32,18 @@ import java.util.TimeZone;
 @Configuration
 public class RedisConfiguration {
 
-    @Value(value = "${spring.data.valkey.host}")
-    private String valkeyHostName;
-
-    @ConfigurationProperties(prefix = "spring.data.valkey")
-    @Bean(value = "valkeyStandaloneConfiguration")
-    public ValkeyStandaloneConfiguration valkeyStandaloneConfiguration() {
-        ValkeyStandaloneConfiguration configuration = new ValkeyStandaloneConfiguration();
-        configuration.setHostName(valkeyHostName);
-        return configuration;
-    }
-
-    @Bean
-    public LettuceConnectionFactory lettuceConnectionFactory(@Qualifier("valkeyStandaloneConfiguration") ValkeyStandaloneConfiguration configuration) {
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(configuration);
-        factory.start();
-        return factory;
-    }
-
-
     @ConditionalOnMissingBean
     @Bean
-    public ValkeyTemplate<String, Object> valkeyTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
+    public ValkeyTemplate<String, Object> valkeyTemplate(LettuceConnectionFactory factory) {
         ValkeyTemplate<String, Object> valkeyTemplate = new ValkeyTemplate<>();
-        valkeyTemplate.setConnectionFactory(lettuceConnectionFactory);
+        valkeyTemplate.setConnectionFactory(factory);
 
         StringValkeySerializer stringValkeySerializer = new StringValkeySerializer();
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
+        simpleModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         simpleModule.addSerializer(new LocalDateSerializer());
+        simpleModule.addDeserializer(LocalDate.class, new LocalDateDeserializer());
         JsonMapper jsonMapper = JsonMapper.builder()
                 .defaultTimeZone(TimeZone.getDefault())
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))

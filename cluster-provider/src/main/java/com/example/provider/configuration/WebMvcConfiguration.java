@@ -1,8 +1,6 @@
 package com.example.provider.configuration;
 
-import com.example.core.handler.LocalDateSerializer;
-import com.example.core.handler.LocalDateTimeSerializer;
-import com.example.core.handler.LogFilter;
+import com.example.core.handler.*;
 import com.example.provider.handler.LoginInterceptor;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +18,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.TimeZone;
 
@@ -64,11 +63,12 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    @ConditionalOnMissingBean(JsonMapper.class)
     public JsonMapper jsonMapper() {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
+        simpleModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         simpleModule.addSerializer(new LocalDateSerializer());
+        simpleModule.addDeserializer(LocalDate.class, new LocalDateDeserializer());
         return JsonMapper.builder()
                 .defaultTimeZone(TimeZone.getDefault())
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))

@@ -51,7 +51,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 校验session
         HttpSession session = request.getSession(false);
         if (session != null) {
-            log.info("session生成时间：{}", TimeUtils.parse(session.getCreationTime()));
+            log.info("session生成时间：{}", TimeUtils.parseLocalDateTime(session.getCreationTime()));
             UserDTO user = LoginUtils.getUserFromSession(session);
             if (null != user && null != user.getId() && user.getId() > 0) {
                 request.setAttribute("userId", user.getId());
