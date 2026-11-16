@@ -77,7 +77,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                 // 存进 attributes，供后续 filter 读取
                 exchange.getAttributes().put("userId", subjectInfo.get("userId"));
                 // 放行
-                return chain.filter(exchange);
+                return addUserIdAndChain(exchange, req, chain, subjectInfo.get("userId").toString());
             } catch (Exception e) {
                 // 发生异常（例如：过期/篡改/格式错误）统一 封装错误响应
                 return reject(exchange, "invalid token");
@@ -89,7 +89,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                     UserDTO user = JsonUtils.convertObject(session.getAttribute("user"), UserDTO.class);
                     if (user != null && user.getId() != null && user.getId() > 0) {
                         exchange.getAttributes().put("userId", user.getId());
-                        return chain.filter(exchange);
+                        return addUserIdAndChain(exchange, req, chain, user.getId().toString());
                     }
                     // 校验remember me
                     HttpCookie rememberMeCookie = req.getCookies().getFirst(rememberMeConfig.getCookieName());
@@ -125,7 +125,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                                                             String cookieValue = TokenGeneratorUtil.encodeCookieValue(series, newToken);
                                                             // 改请求头 + 写响应 cookie（副作用）
                                                             setRememberMeCookie(exchange, cookieValue);
-                                                            return replaceCookieHeader(exchange, chain, req, cookieValue);
+                                                            return replaceCookieHeader(exchange, chain, req, cookieValue, userDTO.getId().toString());
                                                         })
                                         )
                                         // 失败兜底：刷新失败释放/返回 401
@@ -150,7 +150,8 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         exchange.getResponse().getHeaders().add(HttpHeaders.SET_COOKIE, newCookie.toString());
     }
 
-    private Mono<Void> replaceCookieHeader(ServerWebExchange exchange, GatewayFilterChain chain, ServerHttpRequest request, String newValue) {
+    private Mono<Void> replaceCookieHeader(ServerWebExchange exchange, GatewayFilterChain chain,
+                                           ServerHttpRequest request, String newValue, String userId) {
         String cookieString = request.getHeaders().getFirst(HttpHeaders.COOKIE);
         if (cookieString == null || cookieString.isEmpty()) {
             return chain.filter(exchange);
@@ -160,7 +161,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         ServerHttpRequest newRequest = request.mutate().header(HttpHeaders.COOKIE, newCookieString).build();
         // 构造新的 exchange，继续走过滤器链
         ServerWebExchange newExchange = exchange.mutate().request(newRequest).build();
-        return chain.filter(newExchange);
+        return addUserIdAndChain(newExchange, newRequest, chain, userId);
     }
 
     private String replaceRememberMeHeaderValue(RememberMeConfig config, String cookieString, String newValue) {
@@ -180,6 +181,11 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         int lastIndexOf = newHeaderBuilder.lastIndexOf(";");
         newHeaderBuilder.deleteCharAt(lastIndexOf);
         return newHeaderBuilder.toString();
+    }
+
+    private Mono<Void> addUserIdAndChain(ServerWebExchange exchange, ServerHttpRequest req, GatewayFilterChain chain, String userId) {
+        ServerWebExchange build = exchange.mutate().request(req.mutate().header("X-User-Id", userId).build()).build();
+        return chain.filter(build);
     }
 
     /**

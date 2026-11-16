@@ -1,4 +1,4 @@
-package com.example.consumer.handler;
+package com.example.core.handler;
 
 import com.example.core.config.ClusterAppContext;
 import com.example.core.dto.UserDTO;
@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -19,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
  * @author xujiajun
  * @since 2026/11/12
  */
-@Component
 @Slf4j
 public class ClusterAppContextInterceptor implements HandlerInterceptor {
 
@@ -27,15 +26,20 @@ public class ClusterAppContextInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("创建集群应用上下文");
         ClusterAppContext context = new ClusterAppContext();
-        Long userId = (Long) request.getAttribute("userId");
-        context.setUserId(userId);
+        String xUserId = request.getHeader("X-User-Id");
+        if (StringUtils.isNotBlank(xUserId)) {
+            Long userId = Long.valueOf(xUserId);
+            context.setUserId(userId);
+        }
         HttpSession session = request.getSession(false);
         if (session != null) {
             UserDTO user = LoginUtils.getUserFromSession(session);
             context.setUser(user);
         }
         String auth = request.getHeader("auth");
-        context.setAuth(auth);
+        if (StringUtils.isNotBlank(auth)) {
+            context.setAuth(auth);
+        }
         String headerCookies = LoginUtils.getHeaderCookiesFromRequest(request);
         context.setCookies(headerCookies);
         // 讲上下文对象设置到LoginUtils和TaskUtils里

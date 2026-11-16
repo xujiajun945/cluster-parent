@@ -31,6 +31,7 @@ import java.util.TimeZone;
  */
 @LoadBalancerClients(
         {
+                // todo 写死测试的value改为配置文件读取
                 @LoadBalancerClient(name = "cluster-consumer-dev", configuration = ClusterNacosLoadbalancerClient.class)
         }
 )

@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -28,6 +29,10 @@ public class LoginServiceImpl implements LoginService {
 
     @Autowired
     private LoginClient loginClient;
+
+    @Lazy
+    @Autowired
+    private LoginServiceImpl _this;
 
     @Override
     public LoginDTO JWTLogin(UserVO userVO) {
@@ -64,14 +69,19 @@ public class LoginServiceImpl implements LoginService {
             return loginDTO;
         }
 
+        UserDTO userDTO = _this.realLogin(userVO, session);
+        loginDTO.setUserDTO(userDTO);
+        return loginDTO;
+    }
+
+    public UserDTO realLogin(UserVO userVO, HttpSession session) {
         UserDTO userDTO = loginClient.login(userVO);
         if (userDTO == null || userDTO.getId() == null || userDTO.getId() <= 0) {
             throw new RuntimeException("登录失败！");
         }
         LoginUtils.setUserToSession(userDTO);
         session.setMaxInactiveInterval(60 * 60 * 2);
-        loginDTO.setUserDTO(userDTO);
-        return loginDTO;
+        return userDTO;
     }
 
     @Override

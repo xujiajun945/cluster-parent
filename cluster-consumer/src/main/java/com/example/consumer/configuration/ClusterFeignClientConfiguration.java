@@ -1,6 +1,6 @@
 package com.example.consumer.configuration;
 
-import com.example.consumer.handler.ClusterFeignIntercetor;
+import com.example.core.handler.ClusterFeignIntercetor;
 import com.example.core.exception.ClusterException;
 import com.example.core.model.GenericResponse;
 import com.example.core.model.ResponseData;

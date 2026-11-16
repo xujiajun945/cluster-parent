@@ -1,4 +1,4 @@
-package com.example.consumer.handler;
+package com.example.core.handler;
 
 import com.example.core.util.LoginUtils;
 import feign.RequestInterceptor;
@@ -19,6 +19,10 @@ public class ClusterFeignIntercetor implements RequestInterceptor {
             String auth = LoginUtils.getAuth();
             template.header("Cookie", headerCookies);
             template.header("auth", auth);
+            Long userId = LoginUtils.getUserId();
+            if (userId != null) {
+                template.header("X-User-Id", String.valueOf(userId));
+            }
             String traceId = MDC.get("traceId");
             if (StringUtils.isNotBlank(traceId)) {
                 template.header("X-Trace-Id", traceId);

@@ -28,13 +28,14 @@ public class RememberMeAdvice {
     @Autowired
     private RememberMeConfig config;
 
-    @Pointcut(value = "execution(* com.example.consumer.service.impl.LoginServiceImpl.normalLogin(..))")
+    @Pointcut(value = "execution(* com.example.consumer.service.impl.LoginServiceImpl.realLogin(..))")
     public void pointcut() {}
 
     @AfterReturning("pointcut()")
     public void afterReturning() {
         // 查询当前userRememberMe是否存在，只有不存在才会写一条
         Long userId = LoginUtils.getUserId();
+        LoginUtils.getContext().setUserId(userId);
         UserRememberMeDTO userRememberMeDTO = userClient.getUserRememberMeByUserId(userId);
         if (userRememberMeDTO != null) {
             log.info("已经存在userRememberMe，不再重复写！");

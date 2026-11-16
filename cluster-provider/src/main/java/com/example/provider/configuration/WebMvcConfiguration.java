@@ -29,8 +29,11 @@ import java.util.TimeZone;
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
+//    @Autowired
+//    private LoginInterceptor loginInterceptor;
+
     @Autowired
-    private LoginInterceptor loginInterceptor;
+    private ClusterAppContextInterceptor appContextInterceptor;
 
     @Override
     public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
@@ -48,10 +51,14 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/demo/provider/**", "/mysql/**")
+//        registry.addInterceptor(loginInterceptor)
+//                .addPathPatterns("/demo/provider/**", "/mysql/**")
+//                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
+//                .order(0);
+        registry.addInterceptor(appContextInterceptor)
+                .addPathPatterns("/**")
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
-                .order(0);
+                .order(1);
         WebMvcConfigurer.super.addInterceptors(registry);
     }
 

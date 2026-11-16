@@ -1,6 +1,5 @@
 package com.example.consumer.configuration;
 
-import com.example.consumer.handler.ClusterAppContextInterceptor;
 import com.example.consumer.handler.LoginInterceptor;
 import com.example.core.handler.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -30,8 +29,8 @@ import java.util.TimeZone;
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    private LoginInterceptor loginInterceptor;
+//    @Autowired
+//    private LoginInterceptor loginInterceptor;
 
     @Autowired
     private ClusterAppContextInterceptor clusterAppContextInterceptor;
@@ -65,10 +64,10 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/demo/consumer/**", "/mysql/**")
-                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
-                .order(0);
+//        registry.addInterceptor(loginInterceptor)
+//                .addPathPatterns("/demo/consumer/**", "/mysql/**")
+//                .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
+//                .order(0);
         registry.addInterceptor(clusterAppContextInterceptor)
                 .addPathPatterns("/**")
                 .includeHttpMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)

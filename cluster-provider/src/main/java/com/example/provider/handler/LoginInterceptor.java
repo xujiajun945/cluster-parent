@@ -25,7 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author xujiajun
  * @since 2026/10/22
  */
-@Component
+//@Component
 @Slf4j
 public class LoginInterceptor implements HandlerInterceptor {
 
