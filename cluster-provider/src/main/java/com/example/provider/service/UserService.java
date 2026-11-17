@@ -2,6 +2,7 @@ package com.example.provider.service;
 
 import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
+import com.example.core.dto.UserRememberMeTaskDTO;
 
 /**
  *
@@ -19,4 +20,6 @@ public interface UserService {
     UserRememberMeDTO getUserRememberMeByUserId(Long userId);
 
     UserDTO getUserById(Long userId);
+
+    Integer addUserRememberMeTask(UserRememberMeTaskDTO taskDTO);
 }

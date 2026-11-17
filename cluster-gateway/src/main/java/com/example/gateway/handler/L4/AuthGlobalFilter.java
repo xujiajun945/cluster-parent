@@ -2,11 +2,13 @@ package com.example.gateway.handler.L4;
 
 import com.example.core.config.RememberMeConfig;
 import com.example.core.dto.UserDTO;
+import com.example.core.dto.UserRememberMeDTO;
 import com.example.core.util.JsonUtils;
 import com.example.core.util.JwtTokenUtils;
 import com.example.core.util.TokenGeneratorUtil;
 import com.example.gateway.client.UserClient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -17,6 +19,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -38,6 +41,7 @@ import java.util.Map;
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     /**
+     * todo xujiajun 白名单需要外置配置文件
      * 白名单路径
      */
     private static final List<String> WHITE = List
@@ -51,6 +55,10 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     /**
      * 主拦截逻辑
+     * 1. 校验jwt
+     * 2. 校验spring session
+     * 3. 校验remember me 并做刷新操作
+     * 如果以上三种都通过则放行，否则返回错误
      *
      * @param exchange 请求上下文
      * @param chain 过滤器链
@@ -66,75 +74,104 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         if (WHITE.contains(path)) {
             return chain.filter(exchange);
         }
-        // 取 Authorization 头
+        // 取 Authorization 头 校验jwt
         String auth = req.getHeaders().getFirst("auth");
-        if (auth != null && !auth.isEmpty()) {
-            try {
-                // 校验签名并解析载荷
-                String subject = JwtTokenUtils.verifyToken(auth);
-                Map<String, Object> subjectInfo = JsonUtils.parseMap(subject, HashMap.class, String.class, Object.class);
-                // exchange.getAttributes() 只在过滤器链内部可见，不会随转发带给下游微服务。要传给下游，必须写进 request header
-                // 存进 attributes，供后续 filter 读取
-                exchange.getAttributes().put("userId", subjectInfo.get("userId"));
-                // 放行
-                return addUserIdAndChain(exchange, req, chain, subjectInfo.get("userId").toString());
-            } catch (Exception e) {
-                // 发生异常（例如：过期/篡改/格式错误）统一 封装错误响应
-                return reject(exchange, "invalid token");
-            }
+        if (StringUtils.isNotBlank(auth)) {
+            return validateJWT(exchange, chain, req, auth);
         }
-        // 校验spring session
+        // 接入spring session 当前websession代理map session
         return exchange.getSession()
                 .flatMap(session -> {
+                    // 校验spring session
                     UserDTO user = JsonUtils.convertObject(session.getAttribute("user"), UserDTO.class);
                     if (user != null && user.getId() != null && user.getId() > 0) {
                         exchange.getAttributes().put("userId", user.getId());
                         return addUserIdAndChain(exchange, req, chain, user.getId().toString());
                     }
                     // 校验remember me
-                    HttpCookie rememberMeCookie = req.getCookies().getFirst(rememberMeConfig.getCookieName());
-                    if (rememberMeCookie == null) {
-                        return reject(exchange, "未登录或登录失效！");
-                    }
-                    String rememberMeValue = rememberMeCookie.getValue();
-                    String[] parts = TokenGeneratorUtil.decodeCookieValue(rememberMeValue);
-                    if (parts == null) {
-                        return reject(exchange, "rememberMe token格式异常！");
-                    }
-                    String series = parts[0];
-                    String token = parts[1];
-                    return userClient.getUserRememberMeBySeries(series)
-                            .flatMap(userRememberMeDTO -> {
-                                if (!token.equals(userRememberMeDTO.getToken())) {
-                                    return reject(exchange, "rememberMe token校验失败！");
-                                }
-                                boolean result = TokenGeneratorUtil.validateCookieValue(rememberMeValue, userRememberMeDTO.getSecret());
-                                if (!result) {
-                                    return reject(exchange, "rememberMe token解密失败！");
-                                }
-                                exchange.getAttributes().put("userId", userRememberMeDTO.getUserId());
-                                // 需要查询userDTO，创建session并重新下发会话cookie
-                                return userClient.getUserById(userRememberMeDTO.getUserId())
-                                        .flatMap(userDTO ->
-                                                // 1. 写 session（副作用，用 doOnNext 风格的 flatMap 内完成）
-                                                Mono.fromRunnable(() -> session.getAttributes().put("user", userDTO))
-                                                        // 2. 刷新 remember-me token
-                                                        .then(userClient.refreshUserRememberMe(series))
-                                                        // 3. 拿到新 token 后处理 cookie
-                                                        .flatMap(newToken -> {
-                                                            String cookieValue = TokenGeneratorUtil.encodeCookieValue(series, newToken);
-                                                            // 改请求头 + 写响应 cookie（副作用）
-                                                            setRememberMeCookie(exchange, cookieValue);
-                                                            return replaceCookieHeader(exchange, chain, req, cookieValue, userDTO.getId().toString());
-                                                        })
-                                        )
-                                        // 失败兜底：刷新失败释放/返回 401
-                                        .onErrorResume(e -> {
-                                            log.error("刷新 remember-me 失败, series={}", series, e);
-                                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                                            return exchange.getResponse().setComplete();
-                                        });
-                            });
+                    return validateRememberMe(exchange, chain, req, session);
+                });
+    }
+
+    private Mono<Void> validateJWT(ServerWebExchange exchange, GatewayFilterChain chain, ServerHttpRequest req, String jwt) {
+        try {
+            // 校验签名并解析载荷
+            String subject = JwtTokenUtils.verifyToken(jwt);
+            Map<String, Object> subjectInfo = JsonUtils.parseMap(subject, HashMap.class, String.class, Object.class);
+            // exchange.getAttributes() 只在过滤器链内部可见，不会随转发带给下游微服务。要传给下游，必须写进 request header
+            // 存进 attributes，供后续 filter 读取
+            exchange.getAttributes().put("userId", subjectInfo.get("userId"));
+            // 放行
+            return addUserIdAndChain(exchange, req, chain, subjectInfo.get("userId").toString());
+        } catch (Exception e) {
+            // 发生异常（例如：过期/篡改/格式错误）统一 封装错误响应
+            log.error("invalid token", e);
+            return reject(exchange, "invalid token");
+        }
+    }
+
+    private Mono<Void> validateRememberMe(ServerWebExchange exchange, GatewayFilterChain chain, ServerHttpRequest req, WebSession session) {
+        HttpCookie rememberMeCookie = req.getCookies().getFirst(rememberMeConfig.getCookieName());
+        if (rememberMeCookie == null) {
+            return reject(exchange, "未登录或登录失效！");
+        }
+        String rememberMeValue = rememberMeCookie.getValue();
+        String[] parts = TokenGeneratorUtil.decodeCookieValue(rememberMeValue);
+        if (parts == null) {
+            return reject(exchange, "rememberMe token格式异常！");
+        }
+        String series = parts[0];
+        String token = parts[1];
+        return userClient.getUserRememberMeBySeries(series)
+                .flatMap(userRememberMeDTO ->
+                        setUserAndRefreshToken(exchange, req, session, chain, token, userRememberMeDTO, series))
+                .onErrorResume(e -> {
+                    log.error("获取用户 remember-me 失败, series={}", series, e);
+                    exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                    return exchange.getResponse().setComplete();
+                });
+    }
+
+    private Mono<Void> setUserAndRefreshToken(ServerWebExchange exchange, ServerHttpRequest req,
+                                              WebSession session, GatewayFilterChain chain,
+                                              String rememberMeTokenFromCookie,
+                                              UserRememberMeDTO userRememberMeDTO, String series) {
+        if (!rememberMeTokenFromCookie.equals(userRememberMeDTO.getToken())) {
+            return reject(exchange, "rememberMe token校验失败！");
+        }
+        boolean result = TokenGeneratorUtil.validateCookieValue(rememberMeTokenFromCookie, userRememberMeDTO.getSecret());
+        if (!result) {
+            return reject(exchange, "rememberMe token解密失败！");
+        }
+        exchange.getAttributes().put("userId", userRememberMeDTO.getUserId());
+        // 需要查询userDTO，创建session并重新下发会话cookie
+        return userClient.getUserById(userRememberMeDTO.getUserId())
+                // 校验原remember me通过后，需要更新remember me token
+                .flatMap(userDTO -> refreshRememberMe(exchange, req, session, chain, userDTO, series))
+                .onErrorResume(e -> {
+                    log.error("获取用户信息失败, userId={}", userRememberMeDTO.getUserId(), e);
+                    exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                    return exchange.getResponse().setComplete();
+                });
+    }
+
+    private Mono<Void> refreshRememberMe(ServerWebExchange exchange, ServerHttpRequest req,
+                                         WebSession session, GatewayFilterChain chain, UserDTO userDTO, String series) {
+        // 1. 写 session（副作用，用 doOnNext 风格的 flatMap 内完成）
+        return Mono.fromRunnable(() -> session.getAttributes().put("user", userDTO))
+                // 2. 刷新 remember-me token
+                .then(userClient.refreshUserRememberMe(series))
+                // 3. 拿到新 token 后处理 cookie
+                .flatMap(newToken -> {
+                    String cookieValue = TokenGeneratorUtil.encodeCookieValue(series, newToken);
+                    // 改请求头上的remember me cookie为最新值 + 写响应 cookie（副作用）
+                    setRememberMeCookie(exchange, cookieValue);
+                    return replaceCookieHeader(exchange, chain, req, cookieValue, userDTO.getId().toString());
+                })
+                .onErrorResume(e -> {
+                    log.error("刷新 remember-me 失败, series={}", series, e);
+                    exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+                    return exchange.getResponse().setComplete();
                 });
     }
 
@@ -183,6 +220,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         return newHeaderBuilder.toString();
     }
 
+    /**
+     * 添加用户ID到请求头并放行
+     */
     private Mono<Void> addUserIdAndChain(ServerWebExchange exchange, ServerHttpRequest req, GatewayFilterChain chain, String userId) {
         ServerWebExchange build = exchange.mutate().request(req.mutate().header("X-User-Id", userId).build()).build();
         return chain.filter(build);

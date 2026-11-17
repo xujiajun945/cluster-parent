@@ -55,6 +55,7 @@ public class TaskUtils {
                 // 设置登录上下文
                 if (context != null) {
                     LoginUtils.setContext(context);
+                    TaskUtils.setContext(context);
                 }
                 bizTask.execute();
             } catch (Exception e) {
@@ -66,13 +67,14 @@ public class TaskUtils {
                     try {
                         failCallback.accept(e);
                     } catch (Exception exception) {
-                        log.error("callback异常, 当前线程: {}", thread.getName(), exception);
+                        log.error("callback异常, 当前线程: {}, 当前任务：{}", thread.getName(), taskName, exception);
                     }
                 }
             } finally {
                 // 清理threadLocal资源
                 LoginUtils.removeContext();
                 MDC.remove("traceId");
+                TaskUtils.removeContext();
             }
         };
     }

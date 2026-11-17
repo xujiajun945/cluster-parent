@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.provider.dal.dao.UserRememberMeTaskMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.core.model.UserRememberMeTask">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="data" jdbcType="OTHER" property="data"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+        <result column="deleted_time" jdbcType="TIMESTAMP" property="deletedTime"/>
+        <result column="is_deleted" jdbcType="TINYINT" javaType="Boolean" property="deleted"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_id, `data`, created_time, updated_time, deleted_time, is_deleted
+    </sql>
+
+    <select id="getById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+          SELECT
+              <include refid="Base_Column_List"/>
+          FROM
+              demo01.user_remember_me_task
+          WHERE
+              id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getNotDeleteByUserId" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            demo01.user_remember_me_task
+        WHERE
+            user_id = #{userId,jdbcType=BIGINT}
+            AND is_deleted = FALSE
+    </select>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.core.model.UserRememberMeTask"
+            useGeneratedKeys="true">
+        INSERT INTO
+            demo01.user_remember_me_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="data != null">
+                `data`,
+            </if>
+            <if test="createdTime != null">
+                created_time,
+            </if>
+            <if test="updatedTime != null">
+                updated_time,
+            </if>
+            <if test="deletedTime != null">
+                deleted_time,
+            </if>
+            <if test="deleted != null">
+                is_deleted,
+            </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="data != null">
+                #{data,jdbcType=OTHER},
+            </if>
+            <if test="createdTime != null">
+                #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedTime != null">
+                #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deletedTime != null">
+                #{deletedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleted != null">
+                #{deleted,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.example.core.model.UserRememberMeTask">
+        UPDATE
+            demo01.user_remember_me_task
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="data != null">
+                `data` = #{data,jdbcType=OTHER},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedTime != null">
+                updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deletedTime != null">
+                deleted_time = #{deletedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleted != null">
+                is_deleted = #{deleted,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE
+            id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        UPDATE
+            demo01.user_remember_me_task
+        SET
+            is_deleted = 1,
+            deleted_time = CURRENT_TIMESTAMP()
+        WHERE
+            id = #{id,jdbcType=BIGINT}
+    </delete>
+
+</mapper>

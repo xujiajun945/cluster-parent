@@ -10,7 +10,7 @@ import java.util.function.Consumer;
  * @author xujiajun
  * @since 2026/11/10
  */
-public class ClusterExecutor {
+public class ClusterExecutor implements Executor {
 
     private final Executor executor;
 
@@ -18,6 +18,7 @@ public class ClusterExecutor {
         this.executor = executor;
     }
 
+    @Override
     public void execute(Runnable task) {
         execute(task, null);
     }
@@ -29,8 +30,6 @@ public class ClusterExecutor {
     public void execute(String taskName, Runnable task, Consumer<Exception> failCallback) {
         Runnable wrap = TaskUtils.wrap(taskName, task::run, failCallback);
         executor.execute(wrap);
-        // 清理threadLocal资源
-        TaskUtils.removeContext();
     }
 
 }

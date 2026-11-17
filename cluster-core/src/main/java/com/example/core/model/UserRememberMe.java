@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * User Remember Me
@@ -44,17 +44,17 @@ public class UserRememberMe implements Serializable {
     /**
      * Created At
      */
-    private Date createdTime;
+    private LocalDateTime createdTime;
 
     /**
      * Updated At
      */
-    private Date updatedTime;
+    private LocalDateTime updatedTime;
 
     /**
      * Deleted At
      */
-    private Date deletedTime;
+    private LocalDateTime deletedTime;
 
     /**
      * Deleted Flag

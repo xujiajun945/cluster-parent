@@ -3,6 +3,8 @@ package com.example.consumer.handler;
 import com.example.consumer.client.UserClient;
 import com.example.core.config.RememberMeConfig;
 import com.example.core.dto.UserRememberMeDTO;
+import com.example.core.dto.UserRememberMeTaskDTO;
+import com.example.core.model.UserRememberMeTask;
 import com.example.core.util.ClusterExecutor;
 import com.example.core.util.LoginUtils;
 import com.example.core.util.TokenGeneratorUtil;
@@ -45,15 +47,18 @@ public class RememberMeAdvice {
         String series = TokenGeneratorUtil.generateSeries();
         String token = TokenGeneratorUtil.generateToken(series);
         // 保存用户rememberMe
-        clusterExecutor.execute("saveUserRememberMe", () -> {
-            UserRememberMeDTO dto = new UserRememberMeDTO();
-            dto.setUserId(userId);
-            dto.setSeries(series);
-            dto.setToken(token);
-            userClient.addUserRememberMe(dto);
-        }, e -> {
-            log.info("保存用户rememberMe失败，写入schedule任务，userId：{}", userId);
-            // 写入schedule任务 todo xujiajun 2026/11/10
+        UserRememberMeDTO dto = new UserRememberMeDTO();
+        dto.setUserId(userId);
+        dto.setSeries(series);
+        dto.setToken(token);
+        clusterExecutor.execute("saveUserRememberMe",
+                () -> userClient.addUserRememberMe(dto),
+                e -> {
+                    log.info("保存用户rememberMe失败，写入schedule任务，userId：{}", userId);
+                    UserRememberMeTaskDTO task = new UserRememberMeTaskDTO();
+                    task.setUserId(userId);
+                    task.setData(dto);
+                    userClient.addUserRememberMeTask(task);
         });
         String cookieValue = TokenGeneratorUtil.encodeCookieValue(series, token);
         Cookie cookie = new Cookie(config.getCookieName(), cookieValue);

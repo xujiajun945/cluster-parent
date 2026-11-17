@@ -3,7 +3,7 @@ package com.example.core.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author xujiajun
@@ -19,5 +19,5 @@ public class Demo {
 
     private String name;
 
-    private Date time;
+    private LocalDateTime time;
 }

@@ -2,6 +2,7 @@ package com.example.provider.web;
 
 import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
+import com.example.core.dto.UserRememberMeTaskDTO;
 import com.example.core.model.ResponseData;
 import com.example.provider.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +48,11 @@ public class UserController {
     public ResponseData getUserById(@PathVariable("userId") Long userId) {
         UserDTO userDTO = userService.getUserById(userId);
         return new ResponseData(userDTO);
+    }
+
+    @PostMapping(value = "/user_remember_me/task")
+    public ResponseData addUserRememberMeTask(@RequestBody UserRememberMeTaskDTO taskDTO) {
+        Integer effctiveRows = userService.addUserRememberMeTask(taskDTO);
+        return new ResponseData(effctiveRows);
     }
 }

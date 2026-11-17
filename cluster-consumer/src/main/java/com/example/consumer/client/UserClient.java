@@ -3,6 +3,7 @@ package com.example.consumer.client;
 import com.example.consumer.configuration.ClusterFeignClientConfiguration;
 import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
+import com.example.core.dto.UserRememberMeTaskDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,4 +36,7 @@ public interface UserClient {
 
     @GetMapping(value = "/{userId}")
     UserDTO getUserById(@PathVariable("userId") Long userId);
+
+    @PostMapping(value = "/user_remember_me/task")
+    Integer addUserRememberMeTask(@RequestBody UserRememberMeTaskDTO task);
 }

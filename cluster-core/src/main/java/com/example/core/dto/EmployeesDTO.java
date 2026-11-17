@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author xujiajun
@@ -16,7 +16,7 @@ public class EmployeesDTO implements Serializable {
 
     private Integer empNo;
 
-    private Date birthDate;
+    private LocalDateTime birthDate;
 
     private String firstName;
 
@@ -24,5 +24,5 @@ public class EmployeesDTO implements Serializable {
 
     private String gender;
 
-    private Date hireDate;
+    private LocalDateTime hireDate;
 }

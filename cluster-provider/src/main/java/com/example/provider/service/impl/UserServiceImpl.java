@@ -2,23 +2,31 @@ package com.example.provider.service.impl;
 
 import com.example.core.dto.UserDTO;
 import com.example.core.dto.UserRememberMeDTO;
+import com.example.core.dto.UserRememberMeTaskDTO;
 import com.example.core.model.User;
 import com.example.core.model.UserRememberMe;
+import com.example.core.model.UserRememberMeTask;
+import com.example.core.util.LockTemplate;
 import com.example.core.util.TokenGeneratorUtil;
 import com.example.provider.dal.dao.UserMapper;
 import com.example.provider.dal.dao.UserRememberMeMapper;
+import com.example.provider.dal.dao.UserRememberMeTaskMapper;
 import com.example.provider.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+
 /**
  *
  * @author xujiajun
  * @since 2026/11/12
  */
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -26,7 +34,13 @@ public class UserServiceImpl implements UserService {
     private UserRememberMeMapper userRememberMeMapper;
 
     @Autowired
+    private UserRememberMeTaskMapper userRememberMeTaskMapper;
+
+    @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private LockTemplate lockTemplate;
 
     @Override
     public Integer addUserRememberMe(UserRememberMeDTO userRememberMeDTO) {
@@ -98,5 +112,34 @@ public class UserServiceImpl implements UserService {
         userDTO.setPassword(user.getPassword());
         userDTO.setName(user.getName());
         return userDTO;
+    }
+
+    @Override
+    public Integer addUserRememberMeTask(UserRememberMeTaskDTO taskDTO) {
+        if (taskDTO == null  || taskDTO.getUserId() == null || taskDTO.getUserId() <= 0) {
+            throw new IllegalArgumentException("非法参数！！");
+        }
+        if (taskDTO.getData() == null) {
+            throw new IllegalArgumentException("任务待执行数据为空！！");
+        }
+        Long userId = taskDTO.getUserId();
+        String lockKey = "lock:userRememberMeTask:" + userId;
+        Duration ttl = Duration.ofSeconds(30);
+        return lockTemplate.lockWithDog(lockKey, ttl, () -> {
+            int effectRows = 0;
+            // 当前一个userId，只能有一条待执行的remember me task
+            UserRememberMeTask existTask = userRememberMeTaskMapper.getNotDeleteByUserId(userId);
+            if (existTask != null) {
+                log.warn("User {} has a pending remember me task", userId);
+                return effectRows;
+            }
+            UserRememberMeTask userRememberMeTask = new UserRememberMeTask();
+            userRememberMeTask.setUserId(userId);
+            userRememberMeTask.setData(taskDTO.getData());
+            // 判断锁是否丢失，如果锁丢失，则不插入数据
+            effectRows = userRememberMeTaskMapper.insert(userRememberMeTask);
+            log.info("Add user remember me task for user {} successfully", userId);
+            return effectRows;
+        });
     }
 }

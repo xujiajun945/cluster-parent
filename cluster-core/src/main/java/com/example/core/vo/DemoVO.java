@@ -3,7 +3,7 @@ package com.example.core.vo;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author xujiajun
@@ -19,7 +19,7 @@ public class DemoVO {
 
     private String name;
 
-    private Date time;
+    private LocalDateTime time;
 
     private String randomStr;
 }
